@@ -26,6 +26,10 @@ class LayananServiceProvider extends ServiceProvider
         $this->app->bind(LayananEkonomiInterface::class, LayananEkonomi::class);
         $this->app->bind(LayananNilaiTukarInterface::class, LayananNilaiTukar::class);
         $this->app->bind(LayananBeritaInterface::class, LayananBerita::class);
+        $this->app->bind(
+            \App\Services\Kontrak\MesinRisikoInterface::class,
+            \App\Services\Implementasi\MesinRisiko::class
+        );
     }
 
     /**
