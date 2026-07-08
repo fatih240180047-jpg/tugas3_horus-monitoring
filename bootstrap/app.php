@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'verifikasi_peran' => \App\Http\Middleware\VerifikasiPeran::class,
+            'verifikasi_izin'  => \App\Http\Middleware\VerifikasiIzin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
