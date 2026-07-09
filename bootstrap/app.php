@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verifikasi_peran' => \App\Http\Middleware\VerifikasiPeran::class,
             'verifikasi_izin'  => \App\Http\Middleware\VerifikasiIzin::class,
         ]);
+        $middleware->redirectGuestsTo('/masuk');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
