@@ -187,7 +187,13 @@
                 @forelse($beritaTerbaru as $berita)
                 <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; font-size: 13px;">
                     <div style="color: #9ca3af; font-size: 11px; margin-bottom: 4px;">{{ $berita->negara->nama }} • {{ date('d M H:i', strtotime($berita->diterbitkan_pada)) }}</div>
-                    <div style="font-weight: 600; margin-bottom: 6px;">{{ $berita->judul }}</div>
+                    @if($berita->url_asli)
+                        <a href="{{ $berita->url_asli }}" target="_blank" style="font-weight: 600; margin-bottom: 6px; display: block; color: var(--warna-teks-putih); text-decoration: none;">
+                            {{ $berita->judul }} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px; margin-left: 4px; color: #9ca3af;"></i>
+                        </a>
+                    @else
+                        <div style="font-weight: 600; margin-bottom: 6px;">{{ $berita->judul }}</div>
+                    @endif
                     <span class="badge-dynamic" style="background: rgba(220,38,38,0.2); color:#f87171; border: 1px solid #dc2626;">{{ $berita->keparahan }}</span>
                 </div>
                 @empty
@@ -282,7 +288,16 @@
                                 <span style="font-size: 11px; font-weight: 600;" :style="getWarnaSentimen(berita.sentimen)" x-text="berita.sentimen.toUpperCase()"></span>
                                 <span style="font-size: 10px; color: #9ca3af;" x-text="berita.sumber + ' • ' + new Date(berita.diterbitkan_pada).toLocaleDateString()"></span>
                             </div>
-                            <div style="font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 8px;" x-text="berita.judul"></div>
+                            <!-- Judul Berita -->
+                            <template x-if="berita.url_asli">
+                                <a :href="berita.url_asli" target="_blank" style="font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 8px; display: block; color: var(--warna-teks-putih); text-decoration: none;">
+                                    <span x-text="berita.judul"></span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px; margin-left: 4px; color: #9ca3af;"></i>
+                                </a>
+                            </template>
+                            <template x-if="!berita.url_asli">
+                                <div style="font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 8px;" x-text="berita.judul"></div>
+                            </template>
                             
                             <!-- News SCM Insight -->
                             <div x-show="berita.dampak_scm" style="background: rgba(239, 68, 68, 0.08); border-left: 2px solid #ef4444; padding: 8px 12px; font-size: 11px; color: #d1d5db;">
