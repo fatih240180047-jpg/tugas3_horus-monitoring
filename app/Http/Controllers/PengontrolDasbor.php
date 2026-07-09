@@ -27,8 +27,12 @@ class PengontrolDasbor extends Controller
         // 1. Ambil semua negara aktif dipantau
         $negaraList = $this->repositoriNegara->semuaYangDipantau();
 
-        // 2. Ambil penilaian risiko terbaru dari setiap negara
-        $risikoTerkini = $this->repositoriRisiko->semuaTerkini();
+        // 2. Ambil penilaian risiko terbaru dari setiap negara, sertakan relasi cuaca & ekonomi terbaru
+        $risikoTerkini = $this->repositoriRisiko->semuaTerkini()->load([
+            'negara.catatanCuaca' => function ($q) { $q->latest('tanggal_observasi')->limit(1); },
+            'negara.indikatorEkonomi' => function ($q) { $q->latest('tanggal_indikator')->limit(1); },
+            'negara.artikelBerita' => function ($q) { $q->latest('diterbitkan_pada')->limit(1); }
+        ]);
 
         // 3. Hitung ringkasan statistik status risiko
         $statistik = [
@@ -45,8 +49,12 @@ class PengontrolDasbor extends Controller
             ->limit(5)
             ->get();
 
-        // 5. Siapkan data untuk peta SIG Leaflet
+        // 5. Siapkan data untuk peta SIG Leaflet dengan SCM metrics
         $dataPeta = $risikoTerkini->map(function ($item) {
+            $cuaca = $item->negara->catatanCuaca->first();
+            $ekonomi = $item->negara->indikatorEkonomi->first();
+            $berita = $item->negara->artikelBerita->first();
+
             return [
                 'id'            => $item->negara->id,
                 'nama'          => $item->negara->nama,
@@ -60,10 +68,50 @@ class PengontrolDasbor extends Controller
                     'Tinggi' => '#f97316', // Orange
                     'Sedang' => '#eab308', // Yellow
                     default  => '#16a34a', // Green
-                }
+                },
+                'scm' => [
+                    'cuaca' => $cuaca ? "{$cuaca->suhu}°C, " . ucfirst($cuaca->kondisi_cuaca) : 'Data N/A',
+                    'inflasi' => $ekonomi ? "{$ekonomi->tingkat_inflasi}%" : 'Data N/A',
+                    'berita' => $berita ? ucfirst($berita->sentimen) . " ({$berita->keparahan})" : 'Data N/A'
+                ]
             ];
         });
 
-        return view('dasbor.indeks', compact('statistik', 'dataPeta', 'beritaTerbaru', 'risikoTerkini'));
+        // 6. Buat Jaringan Rute Ekspedisi (Algoritmik)
+        $ruteEkspedisi = [];
+        $titikPeta = $dataPeta->keyBy('kode_iso');
+        
+        // Definisikan hub maritim dunia utama
+        $hubUtama = ['SGP', 'CHN', 'USA', 'NLD', 'ARE'];
+        
+        foreach ($dataPeta as $titik) {
+            if (!in_array($titik['kode_iso'], $hubUtama)) {
+                // Hubungkan negara non-hub ke hub terdekat (simulasi rute)
+                // Di sini kita random hub untuk simulasi perdagangan global
+                $hubTujuan = $hubUtama[array_rand($hubUtama)];
+                if (isset($titikPeta[$hubTujuan])) {
+                    $ruteEkspedisi[] = [
+                        'asal' => [$titik['lintang'], $titik['bujur']],
+                        'tujuan' => [$titikPeta[$hubTujuan]['lintang'], $titikPeta[$hubTujuan]['bujur']],
+                        'kode_asal' => $titik['kode_iso'],
+                        'kode_tujuan' => $hubTujuan
+                    ];
+                }
+            }
+        }
+        
+        // Hubungkan antar Hub Utama
+        for ($i=0; $i < count($hubUtama)-1; $i++) {
+            if (isset($titikPeta[$hubUtama[$i]]) && isset($titikPeta[$hubUtama[$i+1]])) {
+                $ruteEkspedisi[] = [
+                    'asal' => [$titikPeta[$hubUtama[$i]]['lintang'], $titikPeta[$hubUtama[$i]]['bujur']],
+                    'tujuan' => [$titikPeta[$hubUtama[$i+1]]['lintang'], $titikPeta[$hubUtama[$i+1]]['bujur']],
+                    'kode_asal' => $hubUtama[$i],
+                    'kode_tujuan' => $hubUtama[$i+1]
+                ];
+            }
+        }
+
+        return view('dasbor.indeks', compact('statistik', 'dataPeta', 'beritaTerbaru', 'risikoTerkini', 'ruteEkspedisi'));
     }
 }

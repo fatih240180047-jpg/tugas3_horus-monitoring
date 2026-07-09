@@ -289,4 +289,145 @@
     </div>
 </div>
 
+<!-- Area Bagan / Grafik Visual (Chart.js) -->
+<div class="layout-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 32px;">
+    <!-- Grafik Tren Nilai Tukar -->
+    <div class="card-panel">
+        <h2 class="card-panel-title">
+            <i class="fa-solid fa-chart-area" style="color: #fbbf24;"></i> Tren Nilai Tukar Historis
+        </h2>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="grafikForex"></canvas>
+        </div>
+    </div>
+
+    <!-- Grafik Historis Skor Risiko -->
+    <div class="card-panel">
+        <h2 class="card-panel-title">
+            <i class="fa-solid fa-chart-line" style="color: #f87171;"></i> Fluktuasi Skor Risiko
+        </h2>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="grafikRisiko"></canvas>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('skrip_tambahan')
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Konfigurasi Tema Gelap (Dark Mode) untuk Chart.js
+        Chart.defaults.color = '#9ca3af';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.borderColor = 'rgba(55, 65, 81, 0.5)';
+
+        // ----------------------------------------------------
+        // 1. Grafik Tren Nilai Tukar (Forex)
+        // ----------------------------------------------------
+        const forexDataRaw = @json($nilaiTukarList->reverse()->values());
+        
+        if(forexDataRaw.length > 0) {
+            const forexLabels = forexDataRaw.map(item => {
+                const date = new Date(item.tanggal_berlaku);
+                return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+            });
+            const forexValues = forexDataRaw.map(item => item.nilai_tukar);
+            const mataUang = forexDataRaw[0].kode_mata_uang;
+
+            const ctxForex = document.getElementById('grafikForex').getContext('2d');
+            
+            // Gradient fill
+            let gradientForex = ctxForex.createLinearGradient(0, 0, 0, 300);
+            gradientForex.addColorStop(0, 'rgba(251, 191, 36, 0.5)'); // amber-400
+            gradientForex.addColorStop(1, 'rgba(251, 191, 36, 0.0)');
+
+            new Chart(ctxForex, {
+                type: 'line',
+                data: {
+                    labels: forexLabels,
+                    datasets: [{
+                        label: `Nilai Tukar (\${mataUang} / USD)`,
+                        data: forexValues,
+                        borderColor: '#fbbf24',
+                        backgroundColor: gradientForex,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#111827',
+                        pointBorderColor: '#fbbf24',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4 // curve
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: false },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // ----------------------------------------------------
+        // 2. Grafik Historis Skor Risiko
+        // ----------------------------------------------------
+        const risikoDataRaw = @json($riwayatRisiko->reverse()->values());
+        
+        if(risikoDataRaw.length > 0) {
+            const risikoLabels = risikoDataRaw.map(item => {
+                const date = new Date(item.dihitung_pada);
+                return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            });
+            const risikoValues = risikoDataRaw.map(item => item.skor_total);
+
+            const ctxRisiko = document.getElementById('grafikRisiko').getContext('2d');
+            
+            let gradientRisiko = ctxRisiko.createLinearGradient(0, 0, 0, 300);
+            gradientRisiko.addColorStop(0, 'rgba(239, 68, 68, 0.5)'); // red-500
+            gradientRisiko.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+
+            new Chart(ctxRisiko, {
+                type: 'line',
+                data: {
+                    labels: risikoLabels,
+                    datasets: [{
+                        label: 'Skor Risiko SCM',
+                        data: risikoValues,
+                        borderColor: '#ef4444',
+                        backgroundColor: gradientRisiko,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#111827',
+                        pointBorderColor: '#ef4444',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        y: { min: 0, max: 100 },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+    });
+</script>
 @endsection

@@ -219,15 +219,17 @@
         // Centered around coordinate (10.0, 40.0) global view
         var map = L.map('peta-sig').setView([15.0, 45.0], 2);
 
-        // Tile layer using OpenStreetMap config
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // Tile layer using OpenStreetMap config - Dark Theme
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             maxZoom: 18,
             minZoom: 2,
-            attribution: '© OpenStreetMap contributors'
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
         }).addTo(map);
 
         var dataPeta = @json($dataPeta);
+        var ruteEkspedisi = @json($ruteEkspedisi);
 
+        // 1. Gambar Marker & Popup SCM Terpadu
         dataPeta.forEach(function (point) {
             if (point.lintang && point.bujur) {
                 var marker = L.circleMarker([point.lintang, point.bujur], {
@@ -240,18 +242,56 @@
                 }).addTo(map);
 
                 marker.bindPopup(`
-                    <div style="color: #111827; font-family: 'Inter', sans-serif;">
-                        <h4 style="margin: 0 0 6px 0; font-family: 'Outfit'; font-size: 15px;">\${point.nama} (\${point.kode_iso})</h4>
-                        <p style="margin: 0 0 8px 0; font-size: 13px;">Skor Risiko: <strong>\${point.skor_total}</strong></p>
-                        <span style="display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; color: #ffffff; background-color: \${point.warna}; text-transform: uppercase;">
-                            \${point.level_risiko}
-                        </span>
-                        <div style="margin-top: 10px;">
-                            <a href="/negara/\${point.kode_iso}" style="color: #991b1b; font-weight: 600; text-decoration: none; font-size: 11px;">Analisis Detil &rarr;</a>
+                    <div style="color: #111827; font-family: 'Inter', sans-serif; min-width: 220px;">
+                        <h4 style="margin: 0 0 6px 0; font-family: 'Outfit'; font-size: 16px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">
+                            \${point.nama} (\${point.kode_iso})
+                        </h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; font-size: 12px;">
+                            <div style="background: #f3f4f6; padding: 6px; border-radius: 6px;">
+                                <span style="display:block; color: #6b7280; font-size: 10px;">Skor Risiko</span>
+                                <strong style="color: \${point.warna};">\${point.skor_total}</strong>
+                            </div>
+                            <div style="background: #f3f4f6; padding: 6px; border-radius: 6px;">
+                                <span style="display:block; color: #6b7280; font-size: 10px;">Status</span>
+                                <strong style="color: \${point.warna};">\${point.level_risiko}</strong>
+                            </div>
+                        </div>
+
+                        <ul style="list-style: none; padding: 0; margin: 8px 0; font-size: 11px;">
+                            <li style="margin-bottom: 4px;">🌡️ Cuaca: <strong>\${point.scm.cuaca}</strong></li>
+                            <li style="margin-bottom: 4px;">📈 Inflasi: <strong>\${point.scm.inflasi}</strong></li>
+                            <li style="margin-bottom: 4px;">📰 Berita: <strong>\${point.scm.berita}</strong></li>
+                        </ul>
+
+                        <div style="margin-top: 12px; text-align: center;">
+                            <a href="/negara/\${point.kode_iso}" style="display: inline-block; background-color: #991b1b; color: #ffffff; padding: 6px 12px; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 11px; width: 100%;">Analisis Detil &rarr;</a>
                         </div>
                     </div>
                 `);
             }
+        });
+
+        // 2. Gambar Rute Ekspedisi (Polylines)
+        ruteEkspedisi.forEach(function (rute) {
+            var latlngs = [
+                rute.asal,
+                rute.tujuan
+            ];
+            
+            var polyline = L.polyline(latlngs, {
+                color: '#3b82f6', // Blue color for sea routes
+                weight: 2,
+                opacity: 0.4,
+                dashArray: '10, 10', // Dashed line to simulate route path
+                lineJoin: 'round'
+            }).addTo(map);
+
+            // Menambahkan panah sederhana atau tooltip
+            polyline.bindTooltip(`Rute SCM: \${rute.kode_asal} &rarr; \${rute.kode_tujuan}`, {
+                sticky: true,
+                className: 'rute-tooltip'
+            });
         });
     });
 </script>
