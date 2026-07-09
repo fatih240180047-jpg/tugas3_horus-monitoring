@@ -27,6 +27,9 @@ Route::middleware('auth')->group(function () {
 
     // Dasbor Utama
     Route::get('/dasbor', [PengontrolDasbor::class, 'indeks'])->name('dasbor.indeks');
+    
+    // API Interaktif Dasbor (AJAX)
+    Route::get('/api/negara/{kode_iso}', [PengontrolDasbor::class, 'apiDetailNegara'])->name('api.negara.detail');
 
     // Detail & Sinkronisasi Negara
     Route::get('/negara/{kode_iso}', [PengontrolNegara::class, 'tampilkan'])->name('negara.tampilkan');

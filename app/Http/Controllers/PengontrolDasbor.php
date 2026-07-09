@@ -112,6 +112,57 @@ class PengontrolDasbor extends Controller
             }
         }
 
-        return view('dasbor.indeks', compact('statistik', 'dataPeta', 'beritaTerbaru', 'risikoTerkini', 'ruteEkspedisi'));
+        return view('dasbor.indeks', compact('statistik', 'dataPeta', 'beritaTerbaru', 'risikoTerkini', 'ruteEkspedisi', 'negaraList'));
+    }
+
+    /**
+     * API Internal untuk menyuplai data ke Dashboard SPA (Sidebar Kanan).
+     */
+    public function apiDetailNegara(string $kodeIso)
+    {
+        $negara = Negara::where('kode_iso', strtoupper($kodeIso))->firstOrFail();
+        
+        $risikoTerkini  = $this->repositoriRisiko->terkini($negara);
+        $cuacaTerkini   = $negara->cuacaTerkini();
+        $ekonomiTerkini = $negara->indikatorEkonomi()->orderBy('tanggal_indikator', 'desc')->first();
+        
+        // 7 Hari Cuaca
+        $prakiraan7Hari = $negara->catatanCuaca()
+            ->where('tanggal_observasi', '>=', date('Y-m-d'))
+            ->orderBy('tanggal_observasi', 'asc')
+            ->limit(7)
+            ->get();
+            
+        // Nilai Tukar 30 hari untuk chart
+        $nilaiTukarList = $negara->nilaiTukar()->orderBy('tanggal_berlaku', 'desc')->limit(30)->get();
+        $nilaiTukarTerkini = $nilaiTukarList->first();
+        
+        // 5 Berita Teratas
+        $beritaList = $negara->artikelBerita()->orderBy('diterbitkan_pada', 'desc')->limit(5)->get();
+
+        return response()->json([
+            'negara' => [
+                'nama' => $negara->nama,
+                'kode_iso' => $negara->kode_iso,
+                'bendera' => $negara->bendera,
+            ],
+            'risiko' => $risikoTerkini ? [
+                'skor' => $risikoTerkini->skor_total,
+                'level' => $risikoTerkini->level_risiko
+            ] : null,
+            'cuaca' => [
+                'terkini' => $cuacaTerkini,
+                'prakiraan' => $prakiraan7Hari,
+                'insight' => $cuacaTerkini?->insight_scm
+            ],
+            'ekonomi' => $ekonomiTerkini,
+            'forex' => [
+                'mata_uang' => \App\Services\Implementasi\LayananNilaiTukar::dapatkanMataUangNegara($negara->kode_iso),
+                'terkini' => $nilaiTukarTerkini,
+                'insight' => $nilaiTukarTerkini?->insight_scm,
+                'history' => $nilaiTukarList->reverse()->values() // Untuk chart (lama -> baru)
+            ],
+            'berita' => $beritaList
+        ]);
     }
 }
