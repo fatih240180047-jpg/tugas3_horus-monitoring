@@ -11,11 +11,12 @@ namespace App\DTO;
 final class DtoNilaiTukar
 {
     public function __construct(
-        public readonly string $kodeIso,
-        public readonly string $kodeMataUang,   // ISO 4217, contoh: IDR
-        public readonly float  $nilaiTukar,     // Terhadap USD
-        public readonly string $tanggalBerlaku, // Format: Y-m-d
-        public readonly string $sumberApi,
+        public readonly string  $kodeIso,
+        public readonly string  $kodeMataUang,   // ISO 4217, contoh: IDR
+        public readonly float   $nilaiTukar,     // Terhadap USD
+        public readonly string  $tanggalBerlaku, // Format: Y-m-d
+        public readonly string  $sumberApi,
+        public readonly ?string $insightScm = null, // Analisis dampak ke SCM
     ) {}
 
     /**
@@ -88,6 +89,7 @@ final class DtoNilaiTukar
             'nilai_tukar'     => $this->nilaiTukar,
             'tanggal_berlaku' => $this->tanggalBerlaku,
             'sumber_api'      => $this->sumberApi,
+            'insight_scm'     => $this->insightScm,
         ];
     }
 }

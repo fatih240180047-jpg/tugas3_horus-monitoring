@@ -45,18 +45,28 @@ class PengontrolNegara extends Controller
         $cuacaTerkini   = $negara->cuacaTerkini();
         $ekonomiTerkini = $negara->indikatorEkonomi()->orderBy('tanggal_indikator', 'desc')->first();
         $nilaiTukarList = $negara->nilaiTukar()->orderBy('tanggal_berlaku', 'desc')->limit(10)->get();
+        $nilaiTukarTerkini = $nilaiTukarList->first(); // Untuk insight SCM
         $beritaList     = $negara->artikelBerita()->orderBy('diterbitkan_pada', 'desc')->limit(10)->get();
         $risikoTerkini  = $this->repositoriRisiko->terkini($negara);
         $riwayatRisiko  = $this->repositoriRisiko->riwayat($negara, 15);
+
+        // Prakiraan cuaca 7 hari ke depan (hari ini + 6 hari)
+        $prakiraan7Hari = $negara->catatanCuaca()
+            ->where('tanggal_observasi', '>=', date('Y-m-d'))
+            ->orderBy('tanggal_observasi', 'asc')
+            ->limit(7)
+            ->get();
 
         return view('negara.tampilkan', compact(
             'negara',
             'cuacaTerkini',
             'ekonomiTerkini',
             'nilaiTukarList',
+            'nilaiTukarTerkini',
             'beritaList',
             'risikoTerkini',
-            'riwayatRisiko'
+            'riwayatRisiko',
+            'prakiraan7Hari'
         ));
     }
 

@@ -167,39 +167,71 @@
 <!-- Grid Analisis Parameter Intelijen -->
 <div class="grid-intelijen">
     
-    <!-- Parameter 1: Cuaca -->
+    <!-- Parameter 1: Cuaca 7 Hari + Insight SCM -->
     <div class="card-panel">
         <h2 class="card-panel-title">
-            <i class="fa-solid fa-cloud-sun" style="color: #60a5fa;"></i> Intelijen Cuaca
+            <i class="fa-solid fa-cloud-sun" style="color: #60a5fa;"></i> Intelijen Cuaca & Prakiraan 7 Hari
+            <span style="font-size: 11px; color: var(--warna-teks-abu); margin-left: 8px; font-weight: 400;">via Open-Meteo</span>
         </h2>
-        <ul class="info-list">
+
+        {{-- Cuaca Hari Ini --}}
+        @if($cuacaTerkini)
+        <ul class="info-list" style="margin-bottom: 16px;">
             <li>
-                <span class="info-label">Suhu Rata-rata</span>
-                <span class="info-value">{{ $cuacaTerkini ? $cuacaTerkini->suhu . ' °C' : 'N/A' }}</span>
-            </li>
-            <li>
-                <span class="info-label">Kelembaban</span>
-                <span class="info-value">{{ $cuacaTerkini ? $cuacaTerkini->kelembaban . ' %' : 'N/A' }}</span>
-            </li>
-            <li>
-                <span class="info-label">Curah Hujan</span>
-                <span class="info-value">{{ $cuacaTerkini ? $cuacaTerkini->curah_hujan . ' mm' : 'N/A' }}</span>
-            </li>
-            <li>
-                <span class="info-label">Kecepatan Angin</span>
-                <span class="info-value">{{ $cuacaTerkini ? $cuacaTerkini->kecepatan_angin . ' km/jam' : 'N/A' }}</span>
+                <span class="info-label">Suhu Saat Ini</span>
+                <span class="info-value">{{ $cuacaTerkini->suhu ?? 'N/A' }} °C
+                    @if($cuacaTerkini->suhu_min && $cuacaTerkini->suhu_max)
+                    <span style="font-size: 11px; color: var(--warna-teks-abu);">({{ $cuacaTerkini->suhu_min }}° – {{ $cuacaTerkini->suhu_max }}°)</span>
+                    @endif
+                </span>
             </li>
             <li>
                 <span class="info-label">Kondisi Cuaca</span>
-                <span class="info-value">{{ $cuacaTerkini ? ucfirst($cuacaTerkini->kondisi_cuaca) : 'N/A' }}</span>
+                <span class="info-value">{{ ucfirst($cuacaTerkini->kondisi_cuaca ?? 'N/A') }}</span>
+            </li>
+            <li>
+                <span class="info-label">Curah Hujan</span>
+                <span class="info-value">{{ $cuacaTerkini->curah_hujan ?? 'N/A' }} mm</span>
+            </li>
+            <li>
+                <span class="info-label">Kecepatan Angin</span>
+                <span class="info-value">{{ $cuacaTerkini->kecepatan_angin ?? 'N/A' }} km/jam</span>
             </li>
         </ul>
+
+        {{-- Prakiraan 7 Hari - Mini Cards --}}
+        @if($prakiraan7Hari->count() > 1)
+        <div style="font-size: 11px; color: var(--warna-teks-abu); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Prakiraan 7 Hari ke Depan</div>
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px;">
+            @foreach($prakiraan7Hari->take(7) as $hari)
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--warna-charcoal-border); border-radius: 8px; padding: 8px 4px; text-align: center;">
+                <div style="font-size: 10px; color: var(--warna-teks-abu);">{{ date('D', strtotime($hari->tanggal_observasi)) }}</div>
+                <div style="font-size: 11px; font-weight: 700; color: var(--warna-teks-putih); margin: 4px 0;">{{ $hari->suhu_max ?? $hari->suhu ?? '--' }}°</div>
+                <div style="font-size: 9px; color: #60a5fa;">{{ $hari->suhu_min ?? '--' }}°</div>
+            </div>
+            @endforeach
+        </div>
+        @endif
+
+        {{-- Insight SCM Cuaca --}}
+        @if($cuacaTerkini->insight_scm)
+        <div style="background: rgba(96, 165, 250, 0.08); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 8px; padding: 12px;">
+            <div style="font-size: 11px; color: #60a5fa; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-lightbulb"></i> Analisis Dampak SCM
+            </div>
+            <div style="font-size: 12px; color: var(--warna-teks-abu); line-height: 1.6; white-space: pre-line;">{{ $cuacaTerkini->insight_scm }}</div>
+        </div>
+        @endif
+        @else
+        <p style="color: var(--warna-teks-abu); font-size: 13px; text-align: center; padding: 24px;">Belum ada data cuaca. Klik "Sinkronkan & Kalkulasi" untuk mengambil data cuaca real-time.</p>
+        @endif
     </div>
 
     <!-- Parameter 2: Makroekonomi -->
     <div class="card-panel">
         <h2 class="card-panel-title">
             <i class="fa-solid fa-chart-line" style="color: #34d399;"></i> Indikator Ekonomi
+            <span style="font-size: 11px; color: var(--warna-teks-abu); margin-left: 8px; font-weight: 400;">via World Bank</span>
         </h2>
         <ul class="info-list">
             <li>
@@ -210,7 +242,9 @@
             </li>
             <li>
                 <span class="info-label">Tingkat Inflasi</span>
-                <span class="info-value">{{ $ekonomiTerkini ? $ekonomiTerkini->tingkat_inflasi . ' %' : 'N/A' }}</span>
+                <span class="info-value" style="color: {{ ($ekonomiTerkini?->tingkat_inflasi ?? 0) > 5 ? '#f87171' : 'var(--warna-teks-putih)' }};">
+                    {{ $ekonomiTerkini ? $ekonomiTerkini->tingkat_inflasi . ' %' : 'N/A' }}
+                </span>
             </li>
             <li>
                 <span class="info-label">Tingkat Pengangguran</span>
@@ -229,10 +263,11 @@
         </ul>
     </div>
 
-    <!-- Parameter 3: Keuangan / Forex -->
+    <!-- Parameter 3: Keuangan / Forex + Insight SCM -->
     <div class="card-panel">
         <h2 class="card-panel-title">
             <i class="fa-solid fa-coins" style="color: #fbbf24;"></i> Nilai Tukar Valuta Asing
+            <span style="font-size: 11px; color: var(--warna-teks-abu); margin-left: 8px; font-weight: 400;">via open.er-api.com</span>
         </h2>
         <ul class="info-list">
             @forelse($nilaiTukarList as $forex)
@@ -244,49 +279,77 @@
                 <li style="text-align: center; color: var(--warna-teks-abu);">Belum ada riwayat forex.</li>
             @endforelse
         </ul>
+
+        {{-- Insight SCM Nilai Tukar --}}
+        @if($nilaiTukarTerkini?->insight_scm)
+        <div style="background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 12px; margin-top: 12px;">
+            <div style="font-size: 11px; color: #fbbf24; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-lightbulb"></i> Analisis Fluktuasi SCM
+            </div>
+            <div style="font-size: 12px; color: var(--warna-teks-abu); line-height: 1.6;">{{ $nilaiTukarTerkini->insight_scm }}</div>
+        </div>
+        @endif
     </div>
 
 </div>
 
-<!-- Feed Berita Relevan Negara -->
+<!-- Feed Berita Relevan Negara + Dampak SCM -->
 <div class="card-panel">
     <h2 class="card-panel-title">
-        <i class="fa-solid fa-newspaper"></i> Umpan Berita & Sentimen Lokal
+        <i class="fa-solid fa-newspaper"></i> Umpan Berita & Sentimen Geopolitik
+        <span style="font-size: 11px; color: var(--warna-teks-abu); margin-left: 8px; font-weight: 400;">via GNews API / NewsAPI</span>
     </h2>
-    <div style="overflow-x: auto;">
-        <table class="tabel-data">
-            <thead>
-                <tr>
-                    <th>Waktu Rilis</th>
-                    <th>Judul Berita</th>
-                    <th>Sentimen</th>
-                    <th>Tingkat Keparahan</th>
-                    <th>Sumber</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($beritaList as $art)
-                    <tr>
-                        <td style="white-space: nowrap;">{{ date('d M Y H:i', strtotime($art->diterbitkan_pada)) }}</td>
-                        <td style="font-weight: 500;">{{ $art->judul }}</td>
-                        <td style="color: {{ $art->sentimen === 'negatif' ? '#f87171' : ($art->sentimen === 'positif' ? '#4ade80' : 'var(--warna-teks-abu)') }}; font-weight: 600;">
-                            {{ ucfirst($art->sentimen) }}
-                        </td>
-                        <td>
-                            <span class="badge badge-{{ $art->keparahan === 'kritis' || $art->keparahan === 'tinggi' ? 'kritis' : ($art->keparahan === 'sedang' ? 'sedang' : 'rendah') }}">
-                                {{ $art->keparahan }}
-                            </span>
-                        </td>
-                        <td>{{ $art->sumber ?? 'N/A' }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--warna-teks-abu);">Belum ada berita yang disinkronkan untuk negara ini.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+    @forelse($beritaList as $art)
+    <div style="border-bottom: 1px solid var(--warna-charcoal-border); padding: 20px 0;">
+        {{-- Header berita --}}
+        <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px;">
+            <div style="flex-grow: 1;">
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap;">
+                    <span class="badge badge-{{ $art->keparahan === 'kritis' || $art->keparahan === 'tinggi' ? 'kritis' : ($art->keparahan === 'sedang' ? 'sedang' : 'rendah') }}">
+                        {{ $art->keparahan }}
+                    </span>
+                    <span style="font-size: 11px; color: {{ $art->sentimen === 'negatif' ? '#f87171' : ($art->sentimen === 'positif' ? '#4ade80' : 'var(--warna-teks-abu)') }}; font-weight: 600;">
+                        <i class="fa-solid {{ $art->sentimen === 'negatif' ? 'fa-thumbs-down' : ($art->sentimen === 'positif' ? 'fa-thumbs-up' : 'fa-hand') }}"></i>
+                        {{ ucfirst($art->sentimen) }}
+                    </span>
+                    <span style="font-size: 11px; color: var(--warna-teks-abu);">{{ $art->sumber ?? 'Unknown Source' }}</span>
+                    <span style="font-size: 11px; color: var(--warna-teks-abu);">{{ date('d M Y H:i', strtotime($art->diterbitkan_pada)) }}</span>
+                </div>
+
+                @if($art->url_asli)
+                <a href="{{ $art->url_asli }}" target="_blank" rel="noopener"
+                   style="font-size: 15px; font-weight: 600; color: var(--warna-teks-putih); text-decoration: none; line-height: 1.4; transition: color 0.2s;">
+                    {{ $art->judul }}
+                    <i class="fa-solid fa-external-link" style="font-size: 11px; margin-left: 4px; opacity: 0.5;"></i>
+                </a>
+                @else
+                <span style="font-size: 15px; font-weight: 600; color: var(--warna-teks-putih);">{{ $art->judul }}</span>
+                @endif
+            </div>
+        </div>
+
+        {{-- Ringkasan --}}
+        @if($art->ringkasan)
+        <p style="font-size: 13px; color: var(--warna-teks-abu); line-height: 1.6; margin-bottom: 10px;">
+            {{ Str::limit($art->ringkasan, 250) }}
+        </p>
+        @endif
+
+        {{-- Dampak SCM --}}
+        @if($art->dampak_scm)
+        <div style="background: rgba(239, 68, 68, 0.07); border-left: 3px solid #991b1b; border-radius: 0 6px 6px 0; padding: 10px 14px;">
+            <div style="font-size: 10px; color: var(--warna-merah-terang); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+                <i class="fa-solid fa-shield-halved"></i> Dampak SCM
+            </div>
+            <div style="font-size: 12px; color: var(--warna-teks-abu); line-height: 1.5; white-space: pre-line;">{{ $art->dampak_scm }}</div>
+        </div>
+        @endif
     </div>
+    @empty
+    <p style="padding: 24px; color: var(--warna-teks-abu); text-align: center;">
+        Belum ada berita yang disinkronkan untuk negara ini. Klik "Sinkronkan & Kalkulasi" untuk mengambil berita terkini.
+    </p>
+    @endforelse
 </div>
 
 <!-- Area Bagan / Grafik Visual (Chart.js) -->

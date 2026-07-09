@@ -68,8 +68,9 @@ return [
     // Provider Berita: NewsAPI
     // ============================================================
     'berita' => [
-        'aktif'          => env('NEWS_API_KEY') !== '',
+        'aktif'          => env('NEWS_API_KEY') !== '' || env('GNEWS_API_KEY') !== '',
         'kunci_api'      => env('NEWS_API_KEY', ''),
+        'gnews_kunci_api'=> env('GNEWS_API_KEY', ''),
         'url_dasar'      => env('NEWS_API_URL', 'https://newsapi.org/v2'),
         'timeout'        => 45,
         'maks_percobaan' => 3,
@@ -78,7 +79,6 @@ return [
         'bahasa'         => 'en',
         'halaman_per_minta' => 100,
         'nama_antrian'   => 'berita',
-        // Kata kunci pencarian per kategori
         'kategori_kunci' => [
             'supply_chain'  => 'supply chain OR logistics OR shipping',
             'ekonomi'       => 'economy OR inflation OR trade',
