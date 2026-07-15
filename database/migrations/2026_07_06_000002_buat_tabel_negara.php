@@ -27,6 +27,8 @@ return new class extends Migration
             $table->decimal('lintang', 10, 7)->nullable()->comment('Koordinat lintang (latitude)');
             $table->decimal('bujur', 10, 7)->nullable()->comment('Koordinat bujur (longitude)');
             $table->unsignedBigInteger('populasi')->nullable()->comment('Jumlah penduduk');
+            $table->char('mata_uang', 3)->nullable()->comment('Kode mata uang ISO 4217, contoh: IDR');
+            $table->string('bendera', 20)->nullable()->comment('Emoji bendera negara');
             $table->boolean('status_pemantauan')->default(true)->comment('Apakah negara aktif dipantau');
             $table->timestamps();
 

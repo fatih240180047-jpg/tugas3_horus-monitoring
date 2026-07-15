@@ -109,6 +109,22 @@ class Pengguna extends Authenticatable
         return $this->hasMany(Laporan::class, 'dibuat_oleh');
     }
 
+    /**
+     * Pengguna memiliki banyak bookmark favorit negara.
+     */
+    public function favoritNegara(): HasMany
+    {
+        return $this->hasMany(FavoritNegara::class, 'pengguna_id');
+    }
+
+    /**
+     * Relasi many-to-many langsung ke model Negara untuk bookmark.
+     */
+    public function negaraFavorit(): BelongsToMany
+    {
+        return $this->belongsToMany(Negara::class, 'favorit_negara', 'pengguna_id', 'negara_id');
+    }
+
     // =========================================================
     // HELPER PERAN
     // =========================================================
@@ -168,5 +184,13 @@ class Pengguna extends Authenticatable
     {
         $peran = $this->peran()->first();
         return $peran ? $peran->name : 'Pengunjung';
+    }
+
+    /**
+     * Dapatkan nama utama pengguna (alias untuk name).
+     */
+    public function getNamaAttribute(): string
+    {
+        return $this->name;
     }
 }

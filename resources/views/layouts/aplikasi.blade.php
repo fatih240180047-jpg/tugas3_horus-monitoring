@@ -514,6 +514,20 @@
                 <div class="sidebar-tooltip">Control Center</div>
             </li>
 
+            <li class="menu-item {{ Request::routeIs('favorit.indeks') ? 'aktif' : '' }}">
+                <a href="{{ route('favorit.indeks') }}" style="position:relative;">
+                    <i class="fa-solid fa-star menu-icon"></i>
+                    <span class="menu-text">Pemantauan Favorit</span>
+                    @php
+                        $jmlFavorit = Auth::user()->favoritNegara()->count();
+                    @endphp
+                    @if($jmlFavorit > 0)
+                    <span id="sidebar-favorit-count" style="margin-left:auto;background:#991b1b;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center;">{{ $jmlFavorit }}</span>
+                    @endif
+                </a>
+                <div class="sidebar-tooltip">Favorit ({{ Auth::user()->favoritNegara()->count() }})</div>
+            </li>
+
             <li class="menu-item {{ Request::routeIs('komparasi.indeks') ? 'aktif' : '' }}">
                 <a href="{{ route('komparasi.indeks') }}">
                     <i class="fa-solid fa-scale-balanced menu-icon"></i>
@@ -533,13 +547,37 @@
                 <div class="sidebar-tooltip">Tindakan Mitigasi</div>
             </li>
 
-            @if(Auth::user()->adalahSuperAdmin() || Auth::user()->mempunyaiPeran('admin'))
+            @if(Auth::user()->adalahSuperAdmin() || Auth::user()->mempunyaiPeran('administrator'))
             <li class="menu-item {{ Request::routeIs('risiko.bobot.form') ? 'aktif' : '' }}">
                 <a href="{{ route('risiko.bobot.form') }}">
                     <i class="fa-solid fa-sliders menu-icon"></i>
                     <span class="menu-text">Bobot Risiko</span>
                 </a>
                 <div class="sidebar-tooltip">Bobot Risiko</div>
+            </li>
+            @endif
+
+            <div class="menu-divider"></div>
+            <li class="menu-section-label">INTELIJEN BERITA</li>
+
+            <li class="menu-item {{ Request::routeIs('analisis.*') ? 'aktif' : '' }}">
+                <a href="{{ route('analisis.indeks') }}">
+                    <i class="fa-solid fa-newspaper menu-icon"></i>
+                    <span class="menu-text">Analisis Artikel</span>
+                </a>
+                <div class="sidebar-tooltip">Analisis Artikel</div>
+            </li>
+
+            @if(Auth::user()->adalahSuperAdmin() || Auth::user()->adalahAdmin())
+            <div class="menu-divider"></div>
+            <li class="menu-section-label">ADMINISTRASI</li>
+
+            <li class="menu-item {{ Request::routeIs('admin.pengguna.*') ? 'aktif' : '' }}">
+                <a href="{{ route('admin.pengguna.indeks') }}">
+                    <i class="fa-solid fa-users-gear menu-icon"></i>
+                    <span class="menu-text">Kelola Pengguna</span>
+                </a>
+                <div class="sidebar-tooltip">Kelola Pengguna</div>
             </li>
             @endif
         </ul>

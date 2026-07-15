@@ -156,6 +156,11 @@ class LayananNilaiTukar implements LayananNilaiTukarInterface
      */
     public static function dapatkanMataUangNegara(string $kodeIso): string
     {
+        $negara = Negara::where('kode_iso', strtoupper($kodeIso))->first();
+        if ($negara && $negara->mata_uang) {
+            return strtoupper($negara->mata_uang);
+        }
+
         return match (strtoupper($kodeIso)) {
             'IDN' => 'IDR',
             'SGP' => 'SGD',

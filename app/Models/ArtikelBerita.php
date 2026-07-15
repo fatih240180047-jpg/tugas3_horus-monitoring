@@ -25,9 +25,10 @@ class ArtikelBerita extends Model
         'sentimen',
         'keparahan',
         'sumber',
+        'url_sumber',
+        'url_asli',
         'diterbitkan_pada',
         'dibuat_pada',
-        'url_asli',
         'dampak_scm',
     ];
 
@@ -42,5 +43,16 @@ class ArtikelBerita extends Model
     public function negara(): BelongsTo
     {
         return $this->belongsTo(Negara::class, 'negara_id');
+    }
+
+    public function analisis(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AnalisisArtikel::class, 'artikel_berita_id');
+    }
+
+    public function analisisTersetujui(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AnalisisArtikel::class, 'artikel_berita_id')
+            ->where('status', 'disetujui');
     }
 }

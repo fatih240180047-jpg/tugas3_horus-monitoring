@@ -82,7 +82,7 @@ class PengontrolNegara extends Controller
         }
 
         // Hanya Administrator dan Analis Risiko yang bisa trigger sinkronisasi
-        if (!Auth::user()->adalahSuperAdmin() && !Auth::user()->mempunyaiPeran('admin') && !Auth::user()->mempunyaiPeran('analis')) {
+        if (!Auth::user()->adalahSuperAdmin() && !Auth::user()->mempunyaiPeran('administrator') && !Auth::user()->mempunyaiPeran('analis-risiko')) {
             abort(403, 'Tindakan ini membutuhkan otorisasi Administrator atau Analis.');
         }
 

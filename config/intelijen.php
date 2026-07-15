@@ -110,4 +110,12 @@ return [
         'seed_acak'      => 12345, // Seed untuk data acak yang konsisten
     ],
 
+    // ============================================================
+    // Provider Data Negara: REST Countries API
+    // ============================================================
+    'rest_countries' => [
+        'url_dasar' => 'https://restcountries.com/v3.1',
+        'timeout'   => 30,
+    ],
+
 ];

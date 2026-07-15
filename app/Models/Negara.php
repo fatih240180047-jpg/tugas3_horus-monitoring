@@ -35,6 +35,8 @@ class Negara extends Model
         'lintang',
         'bujur',
         'populasi',
+        'mata_uang',
+        'bendera',
         'status_pemantauan',
     ];
 
@@ -108,6 +110,14 @@ class Negara extends Model
         return $this->hasMany(LapisanSig::class, 'negara_id');
     }
 
+    /**
+     * Negara difavoritkan oleh banyak pengguna.
+     */
+    public function difavoritkanOleh(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Pengguna::class, 'favorit_negara', 'negara_id', 'pengguna_id');
+    }
+
     // =========================================================
     // HELPER
     // =========================================================
@@ -147,14 +157,6 @@ class Negara extends Model
      */
     public function getBenderaAttribute(): string
     {
-        $map = [
-            'IDN' => '🇮🇩', 'USA' => '🇺🇸', 'CHN' => '🇨🇳', 'SGP' => '🇸🇬',
-            'JPN' => '🇯🇵', 'DEU' => '🇩🇪', 'GBR' => '🇬🇧', 'IND' => '🇮🇳',
-            'AUS' => '🇦🇺', 'BRA' => '🇧🇷', 'CAN' => '🇨🇦', 'FRA' => '🇫🇷',
-            'NLD' => '🇳🇱', 'ARE' => '🇦🇪', 'SAU' => '🇸🇦', 'MYS' => '🇲🇾',
-            'THA' => '🇹🇭', 'VNM' => '🇻🇳', 'PHL' => '🇵🇭', 'KOR' => '🇰🇷',
-        ];
-
-        return $map[$this->kode_iso] ?? '🏳️';
+        return $this->attributes['bendera'] ?? '🏳️';
     }
 }
