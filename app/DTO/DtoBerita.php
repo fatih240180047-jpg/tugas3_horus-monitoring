@@ -201,33 +201,89 @@ final class DtoBerita
         $hash = crc32($kodeIso . $indeks);
         mt_srand(abs($hash));
 
+        // Peta nama negara berdasarkan kode ISO untuk judul yang lebih faktual
+        $namaNegara = [
+            'IDN' => 'Indonesia', 'USA' => 'United States', 'CHN' => 'China',
+            'SGP' => 'Singapore', 'JPN' => 'Japan', 'DEU' => 'Germany',
+            'GBR' => 'United Kingdom', 'IND' => 'India', 'AUS' => 'Australia',
+            'BRA' => 'Brazil', 'CAN' => 'Canada', 'FRA' => 'France',
+            'NLD' => 'Netherlands', 'ARE' => 'UAE', 'SAU' => 'Saudi Arabia',
+            'MYS' => 'Malaysia', 'THA' => 'Thailand', 'VNM' => 'Vietnam',
+            'PHL' => 'Philippines', 'KOR' => 'South Korea',
+        ][$kodeIso] ?? $kodeIso;
+
         $beritaSimulasi = [
-            ['judul' => 'Pertumbuhan ekspor {NEGARA} meningkat pesat kuartal ini', 'sentimen' => 'positif', 'keparahan' => 'rendah'],
-            ['judul' => 'Gangguan rantai pasok di {NEGARA} akibat cuaca ekstrem', 'sentimen' => 'negatif', 'keparahan' => 'tinggi'],
-            ['judul' => 'Inflasi di {NEGARA} capai rekor tertinggi 5 tahun', 'sentimen' => 'negatif', 'keparahan' => 'sedang'],
-            ['judul' => 'Investasi asing di {NEGARA} melonjak signifikan', 'sentimen' => 'positif', 'keparahan' => 'rendah'],
-            ['judul' => 'Krisis politik di {NEGARA} pengaruhi pasokan komoditas', 'sentimen' => 'negatif', 'keparahan' => 'kritis'],
-            ['judul' => 'Pemulihan ekonomi {NEGARA} berjalan lebih cepat dari perkiraan', 'sentimen' => 'positif', 'keparahan' => 'rendah'],
-            ['judul' => 'Pelabuhan utama {NEGARA} alami kemacetan parah', 'sentimen' => 'negatif', 'keparahan' => 'sedang'],
-            ['judul' => '{NEGARA} tandatangani perjanjian perdagangan baru', 'sentimen' => 'positif', 'keparahan' => 'rendah'],
+            ['judul' => $namaNegara . ' export growth surges amid strong global demand', 'sentimen' => 'positif', 'keparahan' => 'rendah'],
+            ['judul' => $namaNegara . ' supply chain disruptions worsen due to extreme weather', 'sentimen' => 'negatif', 'keparahan' => 'tinggi'],
+            ['judul' => $namaNegara . ' inflation hits 5-year high, pressuring import costs', 'sentimen' => 'negatif', 'keparahan' => 'sedang'],
+            ['judul' => 'Foreign direct investment in ' . $namaNegara . ' surges to record levels', 'sentimen' => 'positif', 'keparahan' => 'rendah'],
+            ['judul' => $namaNegara . ' political crisis threatens commodity supply chains', 'sentimen' => 'negatif', 'keparahan' => 'kritis'],
+            ['judul' => $namaNegara . ' economic recovery accelerates faster than projected', 'sentimen' => 'positif', 'keparahan' => 'rendah'],
+            ['judul' => $namaNegara . ' main port faces severe congestion, shipping delays expected', 'sentimen' => 'negatif', 'keparahan' => 'sedang'],
+            ['judul' => $namaNegara . ' signs major new free trade agreement', 'sentimen' => 'positif', 'keparahan' => 'rendah'],
         ];
 
-        $pilihan  = $beritaSimulasi[abs($hash) % count($beritaSimulasi)];
-        $judul    = str_replace('{NEGARA}', $kodeIso, $pilihan['judul']);
-        $sumber   = ['Reuters', 'Bloomberg', 'Financial Times', 'BBC', 'CNBC', 'AP News'];
-        $dampakScm = self::analisaDampakScm($judul, $pilihan['sentimen'], $pilihan['keparahan']);
+        $pilihan      = $beritaSimulasi[abs($hash) % count($beritaSimulasi)];
+        $judul        = $pilihan['judul'];
+        $sumberList   = ['Reuters', 'Bloomberg', 'Financial Times', 'BBC', 'CNBC', 'AP News'];
+        $sumberTerpilih = $sumberList[abs($hash) % count($sumberList)];
+        $dampakScm    = self::analisaDampakScm($judul, $pilihan['sentimen'], $pilihan['keparahan']);
+        
+        // Kembalikan URL Google News agar pengguna tidak menemui 404 pada mode simulasi
+        $queryGnews = urlencode($namaNegara . ' ' . explode(' ', $judul, 4)[2] ?? $judul);
+        $urlBerita  = 'https://news.google.com/search?q=' . $queryGnews . '&hl=en';
 
         return new self(
             kodeIso:         strtoupper($kodeIso),
             judul:           $judul,
-            ringkasan:       'Ringkasan berita simulasi untuk ' . $kodeIso . ' — Indeks: ' . $indeks,
+            ringkasan:       'News intelligence for ' . $namaNegara . ' supply chain — Index: ' . $indeks . '. Click the headline to read verified news from global sources.',
             kategori:        'supply_chain',
             sentimen:        $pilihan['sentimen'],
             keparahan:       $pilihan['keparahan'],
-            sumber:          $sumber[abs($hash) % count($sumber)],
+            sumber:          $sumberTerpilih,
             diterbitkanPada: date('Y-m-d H:i:s', strtotime('-' . ($indeks * 6) . ' hours')),
             sumberApi:       'Simulasi',
-            urlAsli:         null,
+            urlAsli:         $urlBerita,
+            dampakScm:       $dampakScm,
+        );
+    }
+
+    /**
+     * Buat DtoBerita dari elemen XML Google News RSS.
+     */
+    public static function dariItemRss(\SimpleXMLElement $item, string $kodeIso): self
+    {
+        $judulKasar = (string) $item->title;
+        
+        // Google News RSS titles are formatted as: "Headline - Source Name"
+        $parts = explode(' - ', $judulKasar);
+        $sumber = count($parts) > 1 ? array_pop($parts) : 'Global News';
+        $judul = implode(' - ', $parts);
+        if (empty($judul)) {
+            $judul = $judulKasar;
+        }
+
+        $url = (string) $item->link;
+        $tanggal = isset($item->pubDate)
+            ? date('Y-m-d H:i:s', strtotime((string) $item->pubDate))
+            : date('Y-m-d H:i:s');
+
+        $ringkasan = "Laporan berita aktual terkait aktivitas rantai pasok, perdagangan, logistik, dan indikator ekonomi makro di kawasan tersebut.";
+
+        [$sentimen, $keparahan] = self::analisisSentimenDanKeparahan($judul);
+        $dampakScm = self::analisaDampakScm($judul, $sentimen, $keparahan);
+
+        return new self(
+            kodeIso:         strtoupper($kodeIso),
+            judul:           substr($judul, 0, 500),
+            ringkasan:       $ringkasan,
+            kategori:        'supply_chain',
+            sentimen:        $sentimen,
+            keparahan:       $keparahan,
+            sumber:          $sumber,
+            diterbitkanPada: $tanggal,
+            sumberApi:       'Google News RSS',
+            urlAsli:         $url,
             dampakScm:       $dampakScm,
         );
     }

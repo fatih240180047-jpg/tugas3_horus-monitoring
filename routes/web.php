@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PengontrolAutentikasi;
 use App\Http\Controllers\PengontrolDasbor;
+use App\Http\Controllers\PengontrolKomparasi;
 use App\Http\Controllers\PengontrolNegara;
 use App\Http\Controllers\PengontrolRisiko;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,10 @@ Route::middleware('auth')->group(function () {
     
     // API Interaktif Dasbor (AJAX)
     Route::get('/api/negara/{kode_iso}', [PengontrolDasbor::class, 'apiDetailNegara'])->name('api.negara.detail');
+
+    // Country Comparison Engine
+    Route::get('/komparasi', [PengontrolKomparasi::class, 'indeks'])->name('komparasi.indeks');
+    Route::post('/api/komparasi', [PengontrolKomparasi::class, 'apiBandingkan'])->name('api.komparasi');
 
     // Detail & Sinkronisasi Negara
     Route::get('/negara/{kode_iso}', [PengontrolNegara::class, 'tampilkan'])->name('negara.tampilkan');

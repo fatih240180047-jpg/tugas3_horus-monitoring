@@ -27,6 +27,8 @@ class ArtikelBerita extends Model
         'sumber',
         'diterbitkan_pada',
         'dibuat_pada',
+        'url_asli',
+        'dampak_scm',
     ];
 
     protected function casts(): array

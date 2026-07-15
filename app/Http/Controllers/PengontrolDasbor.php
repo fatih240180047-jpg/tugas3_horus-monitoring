@@ -7,6 +7,7 @@ use App\Repositories\Kontrak\RepositoriRisikoInterface;
 use App\Repositories\Kontrak\RepositoriBeritaInterface;
 use App\Models\ArtikelBerita;
 use App\Models\Negara;
+use App\Models\Pelabuhan;
 use Illuminate\Http\Request;
 
 /**
@@ -112,7 +113,27 @@ class PengontrolDasbor extends Controller
             }
         }
 
-        return view('dasbor.indeks', compact('statistik', 'dataPeta', 'beritaTerbaru', 'risikoTerkini', 'ruteEkspedisi', 'negaraList'));
+        // Data pelabuhan untuk marker peta
+        $dataPelabuhan = Pelabuhan::with('negara')
+            ->where('aktif', true)
+            ->get()
+            ->map(fn($p) => [
+                'nama'             => $p->nama,
+                'kode_locode'      => $p->kode_locode,
+                'negara'           => $p->negara?->nama,
+                'kode_iso'         => $p->negara?->kode_iso,
+                'lintang'          => $p->lintang,
+                'bujur'            => $p->bujur,
+                'jenis'            => $p->jenis,
+                'kapasitas_teu'    => $p->kapasitas_teu ? number_format($p->kapasitas_teu) : 'N/A',
+                'tingkat_kepadatan'=> $p->tingkat_kepadatan,
+                'label_kepadatan'  => $p->labelKepadatan(),
+                'warna'            => $p->warnaMarker(),
+                'operator'         => $p->operator,
+                'skor_risiko'      => $p->skor_risiko,
+            ]);
+
+        return view('dasbor.indeks', compact('statistik', 'dataPeta', 'beritaTerbaru', 'risikoTerkini', 'ruteEkspedisi', 'negaraList', 'dataPelabuhan'));
     }
 
     /**

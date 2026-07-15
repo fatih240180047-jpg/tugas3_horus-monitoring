@@ -138,11 +138,19 @@
     <div class="panel-kiri">
         <div class="map-container">
             <div class="hud-overlay">
-                <!-- Dropdown Pencarian Cepat -->
+                <!-- Dropdown Pencarian Cepat Negara -->
                 <select class="negara-select" x-model="selectedIso" @change="fetchDataNegara(selectedIso)">
-                    <option value="">-- Pilih Negara untuk Analisis --</option>
+                    <option value="">-- Cari Analisis Negara --</option>
                     @foreach($negaraList as $n)
                         <option value="{{ $n->kode_iso }}">{{ $n->bendera }} {{ $n->nama }} ({{ $n->kode_iso }})</option>
+                    @endforeach
+                </select>
+
+                <!-- Dropdown Pencarian Pelabuhan -->
+                <select class="negara-select" x-model="selectedPort" @change="flyToPort()">
+                    <option value="">-- Cari Pelabuhan SCM --</option>
+                    @foreach(collect($dataPelabuhan)->sortBy('nama') as $p)
+                        <option value="{{ $p['lintang'] }},{{ $p['bujur'] }}">{{ $p['nama'] }} ({{ $p['kode_locode'] }})</option>
                     @endforeach
                 </select>
                 
@@ -328,6 +336,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('dashboardSPA', () => ({
             selectedIso: '',
+            selectedPort: '',
             isLoading: false,
             dataNegara: null,
             map: null,
@@ -336,6 +345,7 @@
             // Raw Data dari backend
             dataPetaServer: @json($dataPeta),
             ruteServer: @json($ruteEkspedisi),
+            dataPelabuhan: @json($dataPelabuhan),
 
             initPeta() {
                 // Inisiasi Peta Leaflet (Tema Gelap ala Control Center)
@@ -382,6 +392,43 @@
                         });
                     }
                 });
+
+                // Gambar Marker Pelabuhan (Jangkar)
+                this.dataPelabuhan.forEach(port => {
+                    if (port.lintang && port.bujur) {
+                        // Gunakan divIcon untuk icon fontawesome jangkar
+                        let portIcon = L.divIcon({
+                            html: `<div style="background-color: ${port.warna}; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.5);"><i class="fa-solid fa-anchor" style="color: white; font-size: 10px;"></i></div>`,
+                            className: '',
+                            iconSize: [20, 20],
+                            iconAnchor: [10, 10]
+                        });
+
+                        let marker = L.marker([port.lintang, port.bujur], { icon: portIcon }).addTo(this.map);
+
+                        marker.bindTooltip(`
+                            <div style="font-family:'Inter'; text-align:left;">
+                                <strong style="font-family:'Outfit'; font-size:14px; color:#fff;">${port.nama} (${port.kode_locode})</strong>
+                                <div style="color:#9ca3af; font-size:11px; margin-bottom:4px;">${port.negara}</div>
+                                <div style="font-size:12px;">Jenis: <span style="color:#60a5fa">${port.jenis.toUpperCase()}</span></div>
+                                <div style="font-size:12px;">Kapasitas: <strong>${port.kapasitas_teu} TEU</strong></div>
+                                <div style="font-size:12px;">Kepadatan: <strong style="color:${port.warna}">${port.tingkat_kepadatan}% (${port.label_kepadatan})</strong></div>
+                            </div>
+                        `, { className: 'dark-tooltip', direction: 'top' });
+
+                        marker.on('click', () => {
+                            this.selectedIso = port.kode_iso;
+                            this.fetchDataNegara(port.kode_iso);
+                            this.map.flyTo([port.lintang, port.bujur], 6, { duration: 1.5 });
+                        });
+                    }
+                });
+            },
+
+            flyToPort() {
+                if(!this.selectedPort) return;
+                const coords = this.selectedPort.split(',');
+                this.map.flyTo([coords[0], coords[1]], 8, { duration: 1.5 });
             },
 
             async fetchDataNegara(kodeIso) {

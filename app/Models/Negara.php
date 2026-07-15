@@ -93,6 +93,14 @@ class Negara extends Model
     }
 
     /**
+     * Negara memiliki banyak pelabuhan.
+     */
+    public function pelabuhans(): HasMany
+    {
+        return $this->hasMany(Pelabuhan::class, 'negara_id');
+    }
+
+    /**
      * Negara memiliki banyak lapisan SIG.
      */
     public function lapisanSig(): HasMany
@@ -132,5 +140,21 @@ class Negara extends Model
         return $this->nilaiTukar()
             ->orderByDesc('tanggal_berlaku')
             ->first();
+    }
+
+    /**
+     * Accessor untuk bendera emoji berdasarkan kode ISO (Alpha-3 -> Alpha-2).
+     */
+    public function getBenderaAttribute(): string
+    {
+        $map = [
+            'IDN' => '🇮🇩', 'USA' => '🇺🇸', 'CHN' => '🇨🇳', 'SGP' => '🇸🇬',
+            'JPN' => '🇯🇵', 'DEU' => '🇩🇪', 'GBR' => '🇬🇧', 'IND' => '🇮🇳',
+            'AUS' => '🇦🇺', 'BRA' => '🇧🇷', 'CAN' => '🇨🇦', 'FRA' => '🇫🇷',
+            'NLD' => '🇳🇱', 'ARE' => '🇦🇪', 'SAU' => '🇸🇦', 'MYS' => '🇲🇾',
+            'THA' => '🇹🇭', 'VNM' => '🇻🇳', 'PHL' => '🇵🇭', 'KOR' => '🇰🇷',
+        ];
+
+        return $map[$this->kode_iso] ?? '🏳️';
     }
 }

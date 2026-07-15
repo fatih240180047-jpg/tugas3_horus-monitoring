@@ -104,8 +104,8 @@ return [
     // Mode Simulasi Global
     // ============================================================
     'simulasi' => [
-        'aktif'          => env('API_SIMULATION_MODE', true),
-        'deskripsi'      => 'Mode simulasi aktif ketika kunci API tidak dikonfigurasi.',
+        'aktif'          => env('API_SIMULATION_MODE', false),
+        'deskripsi'      => 'Mode simulasi dinonaktifkan secara default untuk menjamin kredibilitas dan keaslian data SCM.',
         'variasi_data'   => true,  // Tambahkan variasi acak pada data mock
         'seed_acak'      => 12345, // Seed untuk data acak yang konsisten
     ],

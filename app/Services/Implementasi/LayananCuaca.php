@@ -52,8 +52,8 @@ class LayananCuaca implements LayananCuacaInterface
 
         // Validasi koordinat negara
         if (!$negara->lintang || !$negara->bujur) {
-            Log::warning("Koordinat tidak tersedia untuk {$negara->nama}, menggunakan data simulasi.");
-            return $this->jalankanSimulasi($negara, $start);
+            Log::warning("Koordinat tidak tersedia untuk {$negara->nama}. Mencari data riil terakhir dari database.");
+            return $this->ambilCuacaTerakhirDariDb($negara);
         }
 
         try {
@@ -90,7 +90,7 @@ class LayananCuaca implements LayananCuacaInterface
 
                 $this->catatLog('Open-Meteo', 'forecast/7days', 'Berhasil', $jumlahRecord, $start);
 
-                return $catatanHariIni ?? $this->jalankanSimulasi($negara, $start);
+                return $catatanHariIni ?? $this->ambilCuacaTerakhirDariDb($negara);
             }
 
             throw new Exception("HTTP {$response->status()}: {$response->body()}");
@@ -98,31 +98,25 @@ class LayananCuaca implements LayananCuacaInterface
             Log::error("Gagal sinkronisasi cuaca Open-Meteo untuk {$negara->nama}: " . $e->getMessage());
             $this->catatLog('Open-Meteo', 'forecast/7days', 'Gagal', 0, $start, $e->getMessage());
 
-            // Fallback ke simulasi yang mencakup 7 hari juga
-            return $this->jalankanSimulasi($negara, $start);
+            // Fallback ke data riil terakhir di DB
+            return $this->ambilCuacaTerakhirDariDb($negara);
         }
     }
 
     /**
-     * Jalankan mode simulasi — simpan 7 hari data simulasi ke database.
+     * Cari data cuaca riil terakhir dari database.
      */
-    private function jalankanSimulasi(Negara $negara, float $start): CatatanCuaca
+    private function ambilCuacaTerakhirDariDb(Negara $negara): CatatanCuaca
     {
-        $catatanHariIni = null;
+        $latest = CatatanCuaca::where('negara_id', $negara->id)
+            ->orderBy('tanggal_observasi', 'desc')
+            ->first();
 
-        for ($i = 0; $i < 7; $i++) {
-            $tanggal = date('Y-m-d', strtotime("+{$i} days"));
-            $dto = DtoCuaca::dariSimulasi($negara->kode_iso, $tanggal);
-            $catatan = $this->repositoriCuaca->simpan($negara, $dto);
-
-            if ($i === 0) {
-                $catatanHariIni = $catatan;
-            }
+        if ($latest) {
+            return $latest;
         }
 
-        $this->catatLog('Open-Meteo (Simulasi)', 'mock_forecast', 'Berhasil', 7, $start);
-
-        return $catatanHariIni;
+        throw new Exception("Data cuaca tidak tersedia untuk {$negara->nama} dan tidak ada rekaman historis di database.");
     }
 
     /**

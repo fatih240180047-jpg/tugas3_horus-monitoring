@@ -89,14 +89,22 @@ class LayananNilaiTukar implements LayananNilaiTukarInterface
                 throw new Exception("Kode mata uang {$kodeMataUang} tidak ada dalam respons API.");
             }
 
-            throw new Exception("HTTP {$response->status()}: {$response->body()}");
         } catch (Exception $e) {
             Log::error("Gagal sinkronisasi nilai tukar {$kodeMataUang} untuk {$negara->nama}: " . $e->getMessage());
             $this->catatLog('ExchangeRate API', 'latest', 'Gagal', 0, $start, $e->getMessage());
 
-            // Fallback ke data simulasi
-            $dto = DtoNilaiTukar::dariSimulasi($negara->kode_iso, $kodeMataUang, date('Y-m-d'));
-            return $this->repositoriNilaiTukar->simpan($negara, $dto);
+            // Fallback ke data riil terakhir yang tersimpan di DB jika ada
+            $latest = NilaiTukar::where('negara_id', $negara->id)
+                ->where('kode_mata_uang', strtoupper($kodeMataUang))
+                ->orderBy('tanggal_berlaku', 'desc')
+                ->first();
+            
+            if ($latest) {
+                Log::warning("Nilai tukar API gagal. Menggunakan data riil terakhir dari cache database untuk {$negara->nama}.");
+                return $latest;
+            }
+
+            throw new Exception("Gagal mendapatkan nilai tukar dari API dan tidak ada data historis di database untuk {$negara->nama}: " . $e->getMessage());
         }
     }
 

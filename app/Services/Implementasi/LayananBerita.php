@@ -69,8 +69,13 @@ class LayananBerita implements LayananBeritaInterface
             }
         }
 
-        // Fallback: Data simulasi
-        return $this->jalankanSimulasi($negara, $start);
+        // Fallback: Ambil secara gratis dari Google News RSS (100% data riil & tanpa API key)
+        try {
+            return $this->ambilDariGoogleNewsRss($negara, $start);
+        } catch (Exception $e) {
+            Log::error("Google News RSS gagal untuk {$negara->nama}: " . $e->getMessage());
+            return new Collection(); // Selalu kembalikan koleksi kosong jika gagal, bukan data fiktif
+        }
     }
 
     /**
@@ -154,15 +159,35 @@ class LayananBerita implements LayananBeritaInterface
     }
 
     /**
-     * Jalankan mode simulasi — simpan berita simulasi ke database.
+     * Ambil berita riil secara gratis dari Google News RSS (tanpa API key).
      */
-    private function jalankanSimulasi(Negara $negara, float $start): Collection
+    private function ambilDariGoogleNewsRss(Negara $negara, float $start): Collection
     {
         $hasilKoleksi = new Collection();
+        
+        // Buat query pencarian yang relevan dengan SCM dan nama negara
+        $query = urlencode('"' . $negara->nama . '" AND (supply chain OR logistics OR shipping OR trade OR economy)');
+        $url = "https://news.google.com/rss/search?q={$query}&hl=en-US&gl=US&ceid=US:en";
+
+        $response = Http::timeout(30)->get($url);
+
+        if (!$response->successful()) {
+            throw new Exception("Google News RSS HTTP {$response->status()}");
+        }
+
+        $xml = simplexml_load_string($response->body());
+        if ($xml === false) {
+            throw new Exception("Gagal melakukan parsing XML RSS Google News");
+        }
+
+        $items = $xml->channel->item ?? [];
         $jumlah = 0;
 
-        for ($i = 1; $i <= 5; $i++) {
-            $dto     = DtoBerita::dariSimulasi($negara->kode_iso, $i);
+        foreach ($items as $item) {
+            if ($jumlah >= 5) { // Ambil 5 berita teratas
+                break;
+            }
+            $dto = DtoBerita::dariItemRss($item, $negara->kode_iso);
             $artikel = $this->repositoriBerita->simpan($negara, $dto);
             if ($artikel) {
                 $hasilKoleksi->push($artikel);
@@ -170,7 +195,7 @@ class LayananBerita implements LayananBeritaInterface
             }
         }
 
-        $this->catatLog('Simulasi', 'mock_news', 'Berhasil', $jumlah, $start);
+        $this->catatLog('Google News RSS', 'rss/search', 'Berhasil', $jumlah, $start);
         return $hasilKoleksi;
     }
 

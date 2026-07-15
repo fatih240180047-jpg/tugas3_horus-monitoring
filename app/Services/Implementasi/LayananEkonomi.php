@@ -31,23 +31,7 @@ class LayananEkonomi implements LayananEkonomiInterface
         $config = config('intelijen.ekonomi');
         $simulasi = config('intelijen.simulasi.aktif');
 
-        // Gunakan mode simulasi jika diatur aktif
-        if ($simulasi) {
-            $dto = DtoEkonomi::dariSimulasi($negara->kode_iso, $tahun);
-            $catatan = $this->repositoriEkonomi->simpan($negara, $dto);
 
-            LogSinkronisasiApi::create([
-                'provider'          => 'World Bank (Simulasi)',
-                'endpoint'          => 'mock_economy_data',
-                'status'            => 'Berhasil',
-                'jumlah_rekaman'    => 1,
-                'waktu_eksekusi_ms' => (int) ((microtime(true) - $start) * 1000),
-                'pesan_error'       => null,
-                'dieksekusi_pada'   => Carbon::now(),
-            ]);
-
-            return $catatan;
-        }
 
         try {
             $pdb = null;
@@ -129,9 +113,18 @@ class LayananEkonomi implements LayananEkonomiInterface
                 'dieksekusi_pada'   => Carbon::now(),
             ]);
 
-            // Fallback ke data simulasi
-            $dto = DtoEkonomi::dariSimulasi($negara->kode_iso, $tahun);
-            return $this->repositoriEkonomi->simpan($negara, $dto);
+            // Fallback ke data riil terakhir yang tersimpan di DB
+            $latest = IndikatorEkonomi::where('negara_id', $negara->id)
+                ->whereYear('tanggal_indikator', $tahun)
+                ->orderBy('id', 'desc')
+                ->first();
+            
+            if ($latest) {
+                Log::warning("Koneksi API World Bank gagal. Menggunakan cache data riil dari database untuk {$negara->nama}.");
+                return $latest;
+            }
+
+            throw new Exception("Gagal melakukan sinkronisasi dengan World Bank API dan tidak ada data historis di database untuk {$negara->nama}: " . $e->getMessage());
         }
     }
 }
