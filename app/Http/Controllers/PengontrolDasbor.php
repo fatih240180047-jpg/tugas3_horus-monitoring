@@ -133,7 +133,12 @@ class PengontrolDasbor extends Controller
                 'skor_risiko'      => $p->skor_risiko,
             ]);
 
-        return view('dasbor.indeks', compact('statistik', 'dataPeta', 'beritaTerbaru', 'risikoTerkini', 'ruteEkspedisi', 'negaraList', 'dataPelabuhan'));
+        // Ambil ID negara yang difavoritkan oleh user yang login
+        $favoritIds = auth()->user()
+            ? auth()->user()->negaraFavorit()->pluck('negara.id')->toArray()
+            : [];
+
+        return view('dasbor.indeks', compact('statistik', 'dataPeta', 'beritaTerbaru', 'risikoTerkini', 'ruteEkspedisi', 'negaraList', 'dataPelabuhan', 'favoritIds'));
     }
 
     /**
@@ -163,9 +168,10 @@ class PengontrolDasbor extends Controller
 
         return response()->json([
             'negara' => [
-                'nama' => $negara->nama,
+                'id'       => $negara->id,
+                'nama'     => $negara->nama,
                 'kode_iso' => $negara->kode_iso,
-                'bendera' => $negara->bendera,
+                'bendera'  => $negara->bendera,
             ],
             'risiko' => $risikoTerkini ? [
                 'skor' => $risikoTerkini->skor_total,

@@ -224,7 +224,19 @@
                         <span x-text="dataNegara?.negara?.bendera"></span> 
                         <span x-text="dataNegara?.negara?.nama"></span>
                     </h2>
-                    <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;" x-text="'Kode ISO: ' + dataNegara?.negara?.kode_iso"></div>
+                    <div style="font-size: 12px; color: #9ca3af; margin-top: 4px; display:flex;align-items:center;gap:12px;">
+                        <span x-text="'Kode ISO: ' + dataNegara?.negara?.kode_iso"></span>
+                        <!-- Tombol Favorit -->
+                        <button
+                            @click="toggleFavoritDasbor(dataNegara?.negara?.id, dataNegara?.negara?.kode_iso)"
+                            :title="favoritIds.includes(dataNegara?.negara?.id) ? 'Hapus dari Favorit' : 'Tambah ke Favorit'"
+                            style="background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;"
+                            :style="favoritIds.includes(dataNegara?.negara?.id) ? 'background:rgba(153,27,27,0.2);color:#fbbf24;border:1px solid rgba(153,27,27,0.4);' : 'background:rgba(55,65,81,0.3);color:#9ca3af;border:1px solid rgba(55,65,81,0.4);'"
+                        >
+                            <i class="fa-solid fa-star" :style="favoritIds.includes(dataNegara?.negara?.id) ? 'color:#fbbf24' : 'color:#6b7280'"></i>
+                            <span x-text="favoritIds.includes(dataNegara?.negara?.id) ? 'Difavoritkan' : '+ Favorit'"></span>
+                        </button>
+                    </div>
                 </div>
                 
                 <div style="text-align: right;" x-show="dataNegara?.risiko">
@@ -346,6 +358,7 @@
             dataPetaServer: @json($dataPeta),
             ruteServer: @json($ruteEkspedisi),
             dataPelabuhan: @json($dataPelabuhan),
+            favoritIds: @json($favoritIds),
 
             initPeta() {
                 // Inisiasi Peta Leaflet (Tema Gelap ala Control Center)
@@ -533,6 +546,35 @@
             formatSaran(text) {
                 // Konversi newline ke <br> untuk html output
                 return text ? text.replace(/\n/g, '<br>') : '';
+            },
+
+            async toggleFavoritDasbor(negaraId, kodeIso) {
+                if (!negaraId) return;
+                try {
+                    const response = await fetch(`/favorit/${negaraId}/toggle`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    });
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        if (data.action === 'added') {
+                            this.favoritIds.push(negaraId);
+                        } else {
+                            this.favoritIds = this.favoritIds.filter(id => id !== negaraId);
+                        }
+                        // Update badge sidebar
+                        const badge = document.getElementById('sidebar-favorit-count');
+                        if (badge) {
+                            badge.innerText = data.total;
+                            badge.style.display = data.total > 0 ? 'inline-flex' : 'none';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Gagal toggle favorit:', e);
+                }
             }
         }));
     });

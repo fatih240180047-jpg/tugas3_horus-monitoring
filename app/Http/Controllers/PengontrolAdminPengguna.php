@@ -17,23 +17,14 @@ use Illuminate\Validation\Rules\Password;
 class PengontrolAdminPengguna extends Controller
 {
     /**
-     * Hanya Super Admin dan Administrator yang dapat akses.
-     */
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (!Auth::user()->adalahSuperAdmin() && !Auth::user()->adalahAdmin()) {
-                abort(403, 'Akses ditolak. Halaman ini hanya untuk Administrator.');
-            }
-            return $next($request);
-        });
-    }
-
-    /**
      * Daftar semua pengguna aktif dan non-aktif.
      */
     public function indeks(Request $request)
     {
+        if (!Auth::user()->adalahSuperAdmin() && !Auth::user()->adalahAdmin()) {
+            abort(403, 'Akses ditolak. Halaman ini hanya untuk Administrator.');
+        }
+
         $query = Pengguna::with('peran')->withTrashed();
 
         // Filter berdasarkan peran
@@ -72,6 +63,9 @@ class PengontrolAdminPengguna extends Controller
      */
     public function buat()
     {
+        if (!Auth::user()->adalahSuperAdmin() && !Auth::user()->adalahAdmin()) {
+            abort(403, 'Akses ditolak.');
+        }
         $semuaPeran = Peran::orderBy('name')->get();
         return view('admin.pengguna.buat', compact('semuaPeran'));
     }
@@ -81,6 +75,10 @@ class PengontrolAdminPengguna extends Controller
      */
     public function simpan(Request $request)
     {
+        if (!Auth::user()->adalahSuperAdmin() && !Auth::user()->adalahAdmin()) {
+            abort(403, 'Akses ditolak.');
+        }
+
         $validated = $request->validate([
             'name'     => 'required|string|max:150',
             'email'    => 'required|email|unique:pengguna,email',
@@ -166,6 +164,9 @@ class PengontrolAdminPengguna extends Controller
      */
     public function hapus(int $id)
     {
+        if (!Auth::user()->adalahSuperAdmin() && !Auth::user()->adalahAdmin()) {
+            abort(403, 'Akses ditolak.');
+        }
         if (Auth::id() === $id) {
             return back()->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
         }
