@@ -217,7 +217,7 @@
                         <!-- Header Kartu -->
                         <div class="header-kartu">
                             <div class="identitas-negara">
-                                <span class="bendera-besar">{{ $negara->bendera }}</span>
+                                
                                 <div>
                                     <a href="{{ route('negara.tampilkan', $negara->kode_iso) }}" class="nama-negara hover:underline">{{ $negara->nama }}</a>
                                     <div class="meta-negara">{{ $negara->kode_iso }} • Capital: {{ $negara->ibu_kota ?? 'N/A' }}</div>

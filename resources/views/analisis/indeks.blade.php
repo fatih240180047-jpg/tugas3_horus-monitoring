@@ -214,7 +214,7 @@
             <div style="flex:1;min-width:0;">
                 <div class="judul-artikel">{{ Str::limit($artikel->judul, 95) }}</div>
                 <div class="meta-artikel">
-                    <span>{{ $artikel->negara?->bendera }} {{ $artikel->negara?->nama ?? 'Global' }}</span>
+                    <span>{{ $artikel->negara?->nama ?? 'Global' }}</span>
                     <span class="badge badge-{{ strtolower($artikel->keparahan) }}">{{ $artikel->keparahan }}</span>
                     <span>{{ \Carbon\Carbon::parse($artikel->diterbitkan_pada)->diffForHumans() }}</span>
                     @if($artikel->analisis->count() > 0)

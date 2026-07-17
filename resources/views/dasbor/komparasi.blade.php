@@ -30,7 +30,7 @@
             <select class="select-negara" x-model="isoA" @change="mulaiKomparasi()">
                 <option value="">-- Pilih Negara A --</option>
                 @foreach($negaraList as $n)
-                    <option value="{{ $n->kode_iso }}">{{ $n->bendera }} {{ $n->nama }}</option>
+                    <option value="{{ $n->kode_iso }}">{{ $n->nama }}</option>
                 @endforeach
             </select>
         </div>
@@ -42,7 +42,7 @@
             <select class="select-negara" x-model="isoB" @change="mulaiKomparasi()">
                 <option value="">-- Pilih Negara B --</option>
                 @foreach($negaraList as $n)
-                    <option value="{{ $n->kode_iso }}">{{ $n->bendera }} {{ $n->nama }}</option>
+                    <option value="{{ $n->kode_iso }}">{{ $n->nama }}</option>
                 @endforeach
             </select>
         </div>
@@ -82,7 +82,7 @@
             <div class="panel-negara" style="border-top:3px solid #3b82f6">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
                     <div>
-                        <div style="font-size:32px" x-text="hasil?.negara_a?.profil?.bendera"></div>
+                        
                         <div style="font-family:'Outfit';font-size:20px;font-weight:700" x-text="hasil?.negara_a?.profil?.nama"></div>
                         <div style="font-size:11px;color:#9ca3af" x-text="hasil?.negara_a?.profil?.kawasan"></div>
                     </div>
@@ -98,7 +98,7 @@
             <div class="panel-negara" style="border-top:3px solid #ef4444">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
                     <div>
-                        <div style="font-size:32px" x-text="hasil?.negara_b?.profil?.bendera"></div>
+                        
                         <div style="font-family:'Outfit';font-size:20px;font-weight:700" x-text="hasil?.negara_b?.profil?.nama"></div>
                         <div style="font-size:11px;color:#9ca3af" x-text="hasil?.negara_b?.profil?.kawasan"></div>
                     </div>

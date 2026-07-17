@@ -190,3 +190,4 @@ class PeranDanIzinSeeder extends Seeder
         $this->command->info('✓ Peran, izin, dan pengguna uji coba berhasil dibuat.');
     }
 }
+

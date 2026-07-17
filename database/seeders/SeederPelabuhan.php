@@ -142,3 +142,4 @@ class SeederPelabuhan extends Seeder
         $this->command->info('SeederPelabuhan: ' . Pelabuhan::count() . ' pelabuhan berhasil diimpor.');
     }
 }
+

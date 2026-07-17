@@ -1,7 +1,7 @@
 @extends('layouts.aplikasi')
 
 @section('judul')
-    <span style="font-size: 32px; margin-right: 8px;">{{ $negara->bendera ?? '🌐' }}</span> Intelijen Negara: {{ $negara->nama }}
+    Intelijen Negara: {{ $negara->nama }}
 @endsection
 
 @section('gaya_tambahan')

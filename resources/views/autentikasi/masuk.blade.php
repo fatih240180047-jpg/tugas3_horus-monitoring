@@ -187,7 +187,7 @@
 
     <div class="login-card">
         <div class="login-header">
-            <span class="login-icon"><i class="fa-solid fa-shield-halved"></i></span>
+            <span class="login-icon"><img src="{{ asset('images/Horus.png') }}" alt="Horus Icon" style="height: 48px; width: auto; border-radius: 8px;"></span>
             <h2 class="login-title">Horus Intelligence</h2>
             <p class="login-subtitle">Supply Chain Intelligence Platform</p>
         </div>

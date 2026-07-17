@@ -17,10 +17,10 @@ class NegaraSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->command->info('🌍 Mengambil metadata negara...');
+        $this->command->info('Mengambil metadata negara...');
         $resMetadata = Http::timeout(30)->get('https://raw.githubusercontent.com/mledoze/countries/master/dist/countries.json');
         
-        $this->command->info('🌍 Mengambil terjemahan nama negara dalam Bahasa Indonesia...');
+        $this->command->info('Mengambil terjemahan nama negara dalam Bahasa Indonesia...');
         $resTranslations = Http::timeout(30)->get('https://raw.githubusercontent.com/umpirsky/country-list/master/data/id/country.json');
 
         if (!$resMetadata->successful() || !$resTranslations->successful()) {
@@ -76,7 +76,7 @@ class NegaraSeeder extends Seeder
             $ditambahkan++;
         }
 
-        $this->command->info("✅ Berhasil memuat {$ditambahkan} negara ke database!");
+        $this->command->info("Berhasil memuat {$ditambahkan} negara ke database!");
     }
 
     private function normalisasiKawasan(string $region): string
@@ -138,3 +138,4 @@ class NegaraSeeder extends Seeder
         $this->command->info("✓ Fallback: {$ditambahkan} negara strategis berhasil dimuat.");
     }
 }
+

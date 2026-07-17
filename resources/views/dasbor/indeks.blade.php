@@ -142,7 +142,7 @@
                 <select class="negara-select" x-model="selectedIso" @change="fetchDataNegara(selectedIso)">
                     <option value="">-- Cari Analisis Negara --</option>
                     @foreach($negaraList as $n)
-                        <option value="{{ $n->kode_iso }}">{{ $n->bendera }} {{ $n->nama }} ({{ $n->kode_iso }})</option>
+                        <option value="{{ $n->kode_iso }}">{{ $n->nama }} ({{ $n->kode_iso }})</option>
                     @endforeach
                 </select>
 
@@ -221,7 +221,7 @@
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; border-bottom: 1px solid #374151; padding-bottom: 16px;">
                 <div>
                     <h2 style="font-family: 'Outfit'; font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 12px;">
-                        <span x-text="dataNegara?.negara?.bendera"></span> 
+                        
                         <span x-text="dataNegara?.negara?.nama"></span>
                     </h2>
                     <div style="font-size: 12px; color: #9ca3af; margin-top: 4px; display:flex;align-items:center;gap:12px;">

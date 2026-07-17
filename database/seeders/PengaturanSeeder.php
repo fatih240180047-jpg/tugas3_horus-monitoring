@@ -175,3 +175,4 @@ class PengaturanSeeder extends Seeder
         $this->command->info("✓ Pengaturan default berhasil dimuat: {$ditambahkan} konfigurasi.");
     }
 }
+

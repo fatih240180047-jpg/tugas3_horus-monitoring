@@ -37,7 +37,7 @@
                 @forelse($rekomendasi as $item)
                     <tr>
                         <td style="font-weight: 600; white-space: nowrap;">
-                            <span style="font-size: 16px; margin-right: 8px;">{{ $item->penilaianRisiko->negara->bendera ?? '🌐' }}</span>
+                            
                             {{ $item->penilaianRisiko->negara->nama }}
                         </td>
                         <td>{{ $item->rekomendasi }}</td>

@@ -495,8 +495,8 @@
     <div class="sidebar" :class="{ 'collapsed': !sidebarOpen }">
         <div class="sidebar-header">
             <div class="sidebar-brand">
-                <i class="fa-solid fa-shield-halved brand-icon"></i>
-                <div class="sidebar-logo">Horus<span>监控</span></div>
+                <img src="{{ asset('images/Horus.png') }}" alt="Horus Icon" class="brand-icon" style="height: 24px; width: auto; margin-right: 10px;">
+                <div class="sidebar-logo">Horus</div>
             </div>
             <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen" :title="sidebarOpen ? 'Perkecil Panel' : 'Perluas Panel'">
                 <i class="fa-solid" :class="sidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'"></i>

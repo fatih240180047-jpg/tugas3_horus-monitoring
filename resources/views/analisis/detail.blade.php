@@ -150,7 +150,7 @@
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <span class="badge badge-{{ strtolower($artikel->keparahan) }}">{{ $artikel->keparahan }}</span>
                 <span class="badge" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);color:#a5b4fc;">{{ ucfirst($artikel->sentimen) }}</span>
-                <span style="font-size:12px;color:var(--warna-teks-abu);">{{ $artikel->negara?->bendera }} {{ $artikel->negara?->nama }}</span>
+                <span style="font-size:12px;color:var(--warna-teks-abu);">{{ $artikel->negara?->nama }}</span>
             </div>
             <h2 style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;line-height:1.4;margin-bottom:10px;">{{ $artikel->judul }}</h2>
             <p style="color:var(--warna-teks-abu);font-size:13.5px;line-height:1.6;">{{ $artikel->ringkasan }}</p>
