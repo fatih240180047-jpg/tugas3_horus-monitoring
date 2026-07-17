@@ -42,11 +42,11 @@ class LayananEkonomi implements LayananEkonomiInterface
 
             // Fetch each indicator from World Bank API
             foreach ($config['indikator'] as $kunci => $code) {
-                // Contoh endpoint: country/IDN/indicator/NY.GDP.MKTP.CD?date=2023&format=json
+                // Contoh endpoint: country/IDN/indicator/NY.GDP.MKTP.CD?mrnev=1&format=json
                 $url = "{$config['url_dasar']}/country/{$negara->kode_iso}/indicator/{$code}";
                 $response = Http::timeout($config['timeout'])
                     ->get($url, [
-                        'date'   => $tahun,
+                        'mrnev'  => 1,
                         'format' => $config['format'],
                     ]);
 

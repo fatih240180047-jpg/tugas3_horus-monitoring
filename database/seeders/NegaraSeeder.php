@@ -52,7 +52,8 @@ class NegaraSeeder extends Seeder
             $kawasan = $this->normalisasiKawasan($c['region'] ?? '');
             $subKawasan = $c['subregion'] ?? null;
 
-            // Ekstrak mata uang dan bendera
+            // Ekstrak populasi, mata uang dan bendera
+            $populasi = $c['population'] ?? null;
             $currencies = $c['currencies'] ?? [];
             $mataUang = !empty($currencies) ? array_key_first($currencies) : null;
             $bendera = $c['flag'] ?? null;
@@ -66,6 +67,7 @@ class NegaraSeeder extends Seeder
                     'sub_kawasan' => $subKawasan,
                     'lintang' => $lintang,
                     'bujur' => $bujur,
+                    'populasi' => $populasi,
                     'mata_uang' => $mataUang,
                     'bendera' => $bendera,
                     'status_pemantauan' => true,

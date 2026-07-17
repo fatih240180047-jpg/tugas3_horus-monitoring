@@ -50,25 +50,30 @@ class PengontrolDasbor extends Controller
             ->limit(5)
             ->get();
 
-        // 5. Siapkan data untuk peta SIG Leaflet dengan SCM metrics
-        $dataPeta = $risikoTerkini->map(function ($item) {
-            $cuaca = $item->negara->catatanCuaca->first();
-            $ekonomi = $item->negara->indikatorEkonomi->first();
-            $berita = $item->negara->artikelBerita->first();
+        // 5. Siapkan data untuk peta SIG Leaflet dengan SCM metrics (Semua negara dipetakan)
+        $dataPeta = $negaraList->map(function ($negara) use ($risikoTerkini) {
+            $risiko = $risikoTerkini->firstWhere('negara_id', $negara->id);
+            $cuaca = $negara->catatanCuaca->first();
+            $ekonomi = $negara->indikatorEkonomi->first();
+            $berita = $negara->artikelBerita->first();
+
+            $levelRisiko = $risiko ? $risiko->level_risiko : 'Belum Ada Data';
+            $skorTotal = $risiko ? $risiko->skor_total : 0;
 
             return [
-                'id'            => $item->negara->id,
-                'nama'          => $item->negara->nama,
-                'kode_iso'      => $item->negara->kode_iso,
-                'lintang'       => $item->negara->lintang,
-                'bujur'         => $item->negara->bujur,
-                'skor_total'    => $item->skor_total,
-                'level_risiko'  => $item->level_risiko,
-                'warna'         => match ($item->level_risiko) {
+                'id'            => $negara->id,
+                'nama'          => $negara->nama,
+                'kode_iso'      => $negara->kode_iso,
+                'lintang'       => $negara->lintang,
+                'bujur'         => $negara->bujur,
+                'skor_total'    => $skorTotal,
+                'level_risiko'  => $levelRisiko,
+                'warna'         => match ($levelRisiko) {
                     'Kritis' => '#dc2626', // Crimson Red
                     'Tinggi' => '#f97316', // Orange
                     'Sedang' => '#eab308', // Yellow
-                    default  => '#16a34a', // Green
+                    'Rendah' => '#16a34a', // Green
+                    default  => '#6b7280', // Gray (Belum Ada Data)
                 },
                 'scm' => [
                     'cuaca' => $cuaca ? "{$cuaca->suhu}°C, " . ucfirst($cuaca->kondisi_cuaca) : 'Data N/A',
@@ -152,19 +157,42 @@ class PengontrolDasbor extends Controller
         $cuacaTerkini   = $negara->cuacaTerkini();
         $ekonomiTerkini = $negara->indikatorEkonomi()->orderBy('tanggal_indikator', 'desc')->first();
         
-        // 7 Hari Cuaca
+        $beritaList = $negara->artikelBerita()->orderBy('diterbitkan_pada', 'desc')->limit(5)->get();
+        $nilaiTukarList = $negara->nilaiTukar()->orderBy('tanggal_berlaku', 'desc')->limit(30)->get();
+        $nilaiTukarTerkini = $nilaiTukarList->first();
         $prakiraan7Hari = $negara->catatanCuaca()
             ->where('tanggal_observasi', '>=', date('Y-m-d'))
             ->orderBy('tanggal_observasi', 'asc')
             ->limit(7)
             ->get();
-            
-        // Nilai Tukar 30 hari untuk chart
-        $nilaiTukarList = $negara->nilaiTukar()->orderBy('tanggal_berlaku', 'desc')->limit(30)->get();
-        $nilaiTukarTerkini = $nilaiTukarList->first();
         
-        // 5 Berita Teratas
-        $beritaList = $negara->artikelBerita()->orderBy('diterbitkan_pada', 'desc')->limit(5)->get();
+        // Cek jika data risiko masih kosong (belum pernah disinkronisasi sama sekali), otomatis jalankan sinkronisasi awal
+        if (!$risikoTerkini) {
+            try {
+                $tahunIni = (int) date('Y');
+                app(\App\Services\Kontrak\LayananCuacaInterface::class)->sinkronkan($negara);
+                app(\App\Services\Kontrak\LayananEkonomiInterface::class)->sinkronkan($negara, $tahunIni);
+                $mataUang = \App\Services\Implementasi\LayananNilaiTukar::dapatkanMataUangNegara($negara->kode_iso);
+                app(\App\Services\Kontrak\LayananNilaiTukarInterface::class)->sinkronkan($negara, $mataUang);
+                app(\App\Services\Kontrak\LayananBeritaInterface::class)->sinkronkan($negara);
+                app(\App\Services\Kontrak\MesinRisikoInterface::class)->hitung($negara);
+
+                // Ambil ulang data terbaru setelah disinkronisasi
+                $risikoTerkini  = $this->repositoriRisiko->terkini($negara);
+                $cuacaTerkini   = $negara->cuacaTerkini();
+                $ekonomiTerkini = $negara->indikatorEkonomi()->orderBy('tanggal_indikator', 'desc')->first();
+                $beritaList     = $negara->artikelBerita()->orderBy('diterbitkan_pada', 'desc')->limit(5)->get();
+                $nilaiTukarList = $negara->nilaiTukar()->orderBy('tanggal_berlaku', 'desc')->limit(30)->get();
+                $nilaiTukarTerkini = $nilaiTukarList->first();
+                $prakiraan7Hari = $negara->catatanCuaca()
+                    ->where('tanggal_observasi', '>=', date('Y-m-d'))
+                    ->orderBy('tanggal_observasi', 'asc')
+                    ->limit(7)
+                    ->get();
+            } catch (\Exception $e) {
+                // Abaikan error jika API limit dll, pakai data seadanya
+            }
+        }
 
         return response()->json([
             'negara' => [

@@ -104,7 +104,7 @@ class PengontrolRisiko extends Controller
             ->when($status, function ($query, $st) {
                 return $query->where('status', $st);
             })
-            ->orderBy('created_at', 'desc')
+            ->orderBy('dibuat_pada', 'desc')
             ->paginate(15);
 
         return view('risiko.rekomendasi', compact('rekomendasi', 'status'));
