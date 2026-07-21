@@ -445,6 +445,19 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('dashboardSPA', () => ({
+            selectedIso: '',
+            selectedPort: '',
+            isLoading: false,
+            dataNegara: null,
+            map: null,
+            forexChartInstance: null,
+
+            // Raw Data dari backend
+            dataPetaServer: @json($dataPeta),
+            ruteServer: @json($ruteEkspedisi),
+            dataPelabuhan: @json($dataPelabuhan),
+            favoritIds: @json($favoritIds),
+
             // Geolocation & Simulator State
             showSimulator: false,
             simBobotCuaca: 20,
@@ -656,9 +669,8 @@
                 }
 
                 this.isLoading = true;
-                
                 try {
-                    const response = await fetch(`/api/negara/${kodeIso}`);
+                    const response = await fetch(`{{ url('/api/negara') }}/${kodeIso}`);
                     if (!response.ok) throw new Error('Network response was not ok');
                     const data = await response.json();
                     
@@ -765,7 +777,7 @@
             async toggleFavoritDasbor(negaraId, kodeIso) {
                 if (!negaraId) return;
                 try {
-                    const response = await fetch(`/favorit/${negaraId}/toggle`, {
+                    const response = await fetch(`{{ url('/favorit') }}/${negaraId}/toggle`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

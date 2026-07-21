@@ -322,7 +322,7 @@
             return;
         }
 
-        fetch(`/favorit/${negaraId}/toggle`, {
+        fetch(`{{ url('/favorit') }}/${negaraId}/toggle`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

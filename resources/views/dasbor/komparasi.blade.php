@@ -141,7 +141,7 @@ document.addEventListener('alpine:init', () => {
             this.isLoading = true;
             this.hasil = null;
             try {
-                const res = await fetch('/api/komparasi', {
+                const res = await fetch('{{ url('/api/komparasi') }}', {
                     method: 'POST',
                     headers: {'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content ?? '{{ csrf_token() }}'},
                     body: JSON.stringify({negara_a: this.isoA, negara_b: this.isoB})
