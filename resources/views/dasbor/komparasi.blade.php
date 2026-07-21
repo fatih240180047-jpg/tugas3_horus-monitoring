@@ -81,10 +81,12 @@
             <!-- Negara A -->
             <div class="panel-negara" style="border-top:3px solid #3b82f6">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                    <div>
-                        
-                        <div style="font-family:'Outfit';font-size:20px;font-weight:700" x-text="hasil?.negara_a?.profil?.nama"></div>
-                        <div style="font-size:11px;color:#9ca3af" x-text="hasil?.negara_a?.profil?.kawasan"></div>
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <img :src="'https://flagcdn.com/w40/' + hasil?.negara_a?.profil?.bendera + '.png'" style="height:20px;width:30px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,0.15)" :alt="hasil?.negara_a?.profil?.nama + ' Flag'">
+                        <div>
+                            <div style="font-family:'Outfit';font-size:20px;font-weight:700" x-text="hasil?.negara_a?.profil?.nama"></div>
+                            <div style="font-size:11px;color:#9ca3af" x-text="hasil?.negara_a?.profil?.kawasan"></div>
+                        </div>
                     </div>
                     <div x-show="hasil?.negara_a?.risiko" style="text-align:right">
                         <div style="font-size:28px;font-weight:800;font-family:'Outfit'" :style="getWarnaRisiko(hasil?.negara_a?.risiko?.level)" x-text="hasil?.negara_a?.risiko?.skor + '/100'"></div>
@@ -97,10 +99,12 @@
             <!-- Negara B -->
             <div class="panel-negara" style="border-top:3px solid #ef4444">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                    <div>
-                        
-                        <div style="font-family:'Outfit';font-size:20px;font-weight:700" x-text="hasil?.negara_b?.profil?.nama"></div>
-                        <div style="font-size:11px;color:#9ca3af" x-text="hasil?.negara_b?.profil?.kawasan"></div>
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <img :src="'https://flagcdn.com/w40/' + hasil?.negara_b?.profil?.bendera + '.png'" style="height:20px;width:30px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,0.15)" :alt="hasil?.negara_b?.profil?.nama + ' Flag'">
+                        <div>
+                            <div style="font-family:'Outfit';font-size:20px;font-weight:700" x-text="hasil?.negara_b?.profil?.nama"></div>
+                            <div style="font-size:11px;color:#9ca3af" x-text="hasil?.negara_b?.profil?.kawasan"></div>
+                        </div>
                     </div>
                     <div x-show="hasil?.negara_b?.risiko" style="text-align:right">
                         <div style="font-size:28px;font-weight:800;font-family:'Outfit'" :style="getWarnaRisiko(hasil?.negara_b?.risiko?.level)" x-text="hasil?.negara_b?.risiko?.skor + '/100'"></div>

@@ -68,6 +68,12 @@ class PengontrolDasbor extends Controller
                 'bujur'         => $negara->bujur,
                 'skor_total'    => $skorTotal,
                 'level_risiko'  => $levelRisiko,
+                'skor_cuaca'    => $risiko ? $risiko->skor_cuaca : 0,
+                'skor_ekonomi'  => $risiko ? $risiko->skor_ekonomi : 0,
+                'skor_nilai_tukar' => $risiko ? $risiko->skor_nilai_tukar : 0,
+                'skor_berita'   => $risiko ? $risiko->skor_berita : 0,
+                'skor_logistik' => $risiko ? $risiko->skor_logistik : 0,
+                'skor_politik'  => $risiko ? $risiko->skor_politik : 0,
                 'warna'         => match ($levelRisiko) {
                     'Kritis' => '#dc2626', // Crimson Red
                     'Tinggi' => '#f97316', // Orange

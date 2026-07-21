@@ -1,7 +1,10 @@
 @extends('layouts.aplikasi')
 
 @section('judul')
-    Intelijen Negara: {{ $negara->nama }}
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="{{ $negara->bendera_url }}" style="height: 24px; width: 36px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15);" alt="{{ $negara->nama }} Flag">
+        <span>Intelijen Negara: {{ $negara->nama }}</span>
+    </div>
 @endsection
 
 @section('gaya_tambahan')
@@ -375,6 +378,16 @@
     </div>
 </div>
 
+<!-- Grafik Prakiraan Cuaca 7 Hari -->
+<div class="card-panel" style="margin-top: 32px;">
+    <h2 class="card-panel-title">
+        <i class="fa-solid fa-cloud-sun-rain" style="color: #60a5fa;"></i> Tren Prakiraan Cuaca 7 Hari Ke Depan (Suhu Maksimum / Minimum)
+    </h2>
+    <div style="position: relative; height: 300px; width: 100%;">
+        <canvas id="grafikCuaca7Hari"></canvas>
+    </div>
+</div>
+
 @endsection
 
 @section('skrip_tambahan')
@@ -486,6 +499,75 @@
                     },
                     scales: {
                         y: { min: 0, max: 100 },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // ----------------------------------------------------
+        // 3. Grafik Prakiraan Cuaca 7 Hari
+        // ----------------------------------------------------
+        const cuacaDataRaw = @json($prakiraan7Hari->reverse()->values());
+        
+        if(cuacaDataRaw.length > 0) {
+            const cuacaLabels = cuacaDataRaw.map(item => {
+                const date = new Date(item.tanggal_observasi);
+                return date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
+            });
+            const suhuMaxValues = cuacaDataRaw.map(item => item.suhu_max ?? item.suhu);
+            const suhuMinValues = cuacaDataRaw.map(item => item.suhu_min ?? (item.suhu ? item.suhu - 4 : 15));
+
+            const ctxCuaca = document.getElementById('grafikCuaca7Hari').getContext('2d');
+
+            new Chart(ctxCuaca, {
+                type: 'line',
+                data: {
+                    labels: cuacaLabels,
+                    datasets: [
+                        {
+                            label: 'Suhu Maksimum (°C)',
+                            data: suhuMaxValues,
+                            borderColor: '#f97316', // Orange
+                            backgroundColor: 'rgba(249, 115, 22, 0.05)',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#111827',
+                            pointBorderColor: '#f97316',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            fill: false,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Suhu Minimum (°C)',
+                            data: suhuMinValues,
+                            borderColor: '#3b82f6', // Blue
+                            backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#111827',
+                            pointBorderColor: '#3b82f6',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            fill: false,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, labels: { color: '#e5e7eb' } },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        y: { 
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '°C';
+                                }
+                            }
+                        },
                         x: { grid: { display: false } }
                     }
                 }

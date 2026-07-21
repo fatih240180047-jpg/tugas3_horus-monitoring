@@ -486,6 +486,90 @@
             .sidebar-logo, .user-info-wrapper, .menu-text { opacity: 0; max-width: 0; }
             .konten-utama { margin-left: var(--sidebar-collapsed); padding: 20px 16px; }
         }
+
+        /* Ticker Bar (Marquee) */
+        .scm-ticker-container {
+            background: rgba(13, 17, 23, 0.95);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 10px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 22px;
+        }
+
+        .scm-ticker-label {
+            background: linear-gradient(90deg, #991b1b 0%, #dc2626 100%);
+            color: #fff;
+            padding: 0 14px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            z-index: 12;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .scm-ticker-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            height: 100%;
+        }
+
+        .scm-ticker-track {
+            display: flex;
+            white-space: nowrap;
+            position: absolute;
+            animation: scm-ticker-scroll 55s linear infinite;
+        }
+
+        .scm-ticker-track:hover {
+            animation-play-state: paused;
+        }
+
+        .scm-ticker-item {
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            color: var(--warna-teks-putih);
+            font-size: 11.5px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .scm-ticker-item:hover {
+            color: var(--warna-merah-terang);
+        }
+
+        .scm-ticker-separator {
+            color: var(--warna-merah-terang);
+            opacity: 0.5;
+            margin: 0 4px;
+            font-size: 10px;
+        }
+
+        @keyframes scm-ticker-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @keyframes pulse-blink {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
     </style>
     @yield('gaya_tambahan')
 </head>
@@ -599,6 +683,48 @@
 
     <!-- Konten Utama -->
     <div class="konten-utama" :class="{ 'expanded': !sidebarOpen }">
+        
+        <!-- Marquee Berita Panas Global -->
+        @php
+            $beritaPanas = \App\Models\ArtikelBerita::with('negara')
+                ->whereIn('keparahan', ['kritis', 'tinggi'])
+                ->orderBy('diterbitkan_pada', 'desc')
+                ->limit(10)
+                ->get();
+        @endphp
+        @if($beritaPanas->count() > 0)
+        <div class="scm-ticker-container">
+            <div class="scm-ticker-label">
+                <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px; animation: pulse-blink 0.8s infinite alternate;"></i> Live SCM Alert
+            </div>
+            <div class="scm-ticker-content">
+                <div class="scm-ticker-track">
+                    @foreach($beritaPanas as $b)
+                        <a href="{{ $b->url_asli ?? $b->tautan ?? '#' }}" target="_blank" class="scm-ticker-item">
+                            @if($b->negara)
+                                <img src="{{ $b->negara->bendera_url }}" style="height: 10px; width: 15px; border-radius: 1px; margin-right: 6px; object-fit: cover; border: 1px solid rgba(255,255,255,0.15);">
+                            @endif
+                            <span class="badge badge-{{ $b->keparahan }}" style="margin-right: 8px; font-size: 8px; padding: 1px 3px;">{{ $b->keparahan }}</span>
+                            <span>{{ $b->judul }}</span>
+                        </a>
+                        <span class="scm-ticker-separator">•</span>
+                    @endforeach
+                    <!-- Duplikasi untuk seamless loop -->
+                    @foreach($beritaPanas as $b)
+                        <a href="{{ $b->url_asli ?? $b->tautan ?? '#' }}" target="_blank" class="scm-ticker-item">
+                            @if($b->negara)
+                                <img src="{{ $b->negara->bendera_url }}" style="height: 10px; width: 15px; border-radius: 1px; margin-right: 6px; object-fit: cover; border: 1px solid rgba(255,255,255,0.15);">
+                            @endif
+                            <span class="badge badge-{{ $b->keparahan }}" style="margin-right: 8px; font-size: 8px; padding: 1px 3px;">{{ $b->keparahan }}</span>
+                            <span>{{ $b->judul }}</span>
+                        </a>
+                        <span class="scm-ticker-separator">•</span>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="header-konten">
             <h1 class="judul-halaman">@yield('judul')</h1>
             <div style="font-size: 13px; color: var(--warna-teks-abu); display: flex; align-items: center; gap: 8px;">

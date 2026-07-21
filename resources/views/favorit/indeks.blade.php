@@ -217,10 +217,10 @@
                         <!-- Header Kartu -->
                         <div class="header-kartu">
                             <div class="identitas-negara">
-                                
+                                <img src="{{ $negara->bendera_url }}" style="height: 24px; width: 36px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15);" alt="{{ $negara->nama }} Flag">
                                 <div>
                                     <a href="{{ route('negara.tampilkan', $negara->kode_iso) }}" class="nama-negara hover:underline">{{ $negara->nama }}</a>
-                                    <div class="meta-negara">{{ $negara->kode_iso }} • Capital: {{ $negara->ibu_kota ?? 'N/A' }}</div>
+                                    <div class="meta-negara">{{ $negara->kode_iso }} • Ibu Kota: {{ $negara->ibu_kota ?? 'N/A' }}</div>
                                 </div>
                             </div>
                             <button class="star-btn" onclick="toggleFavorit({{ $negara->id }}, this)" title="Hapus dari Favorit">

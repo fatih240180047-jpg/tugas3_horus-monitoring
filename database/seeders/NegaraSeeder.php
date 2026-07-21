@@ -56,7 +56,7 @@ class NegaraSeeder extends Seeder
             $populasi = $c['population'] ?? null;
             $currencies = $c['currencies'] ?? [];
             $mataUang = !empty($currencies) ? array_key_first($currencies) : null;
-            $bendera = $c['flag'] ?? null;
+            $bendera = isset($c['cca2']) ? strtolower($c['cca2']) : null;
 
             Negara::updateOrCreate(
                 ['kode_iso' => $cca3],
@@ -128,10 +128,24 @@ class NegaraSeeder extends Seeder
         ];
 
         $ditambahkan = 0;
+        $mapIso3KeIso2 = [
+            'IDN' => 'id', 'SGP' => 'sg', 'MYS' => 'my', 'THA' => 'th', 'VNM' => 'vn',
+            'PHL' => 'ph', 'CHN' => 'cn', 'JPN' => 'jp', 'KOR' => 'kr', 'IND' => 'in',
+            'SAU' => 'sa', 'ARE' => 'ae', 'DEU' => 'de', 'NLD' => 'nl', 'GBR' => 'gb',
+            'FRA' => 'fr', 'USA' => 'us', 'CAN' => 'ca', 'BRA' => 'br', 'AUS' => 'au',
+            'ZAF' => 'za', 'NGA' => 'ng', 'RUS' => 'ru', 'PAK' => 'pk', 'BGD' => 'bd',
+            'MEX' => 'mx', 'TUR' => 'tr', 'EGY' => 'eg', 'ARG' => 'ar', 'UKR' => 'ua'
+        ];
+
         foreach ($daftarNegara as $data) {
+            $iso3 = $data['kode_iso'];
+            $iso2 = $mapIso3KeIso2[$iso3] ?? null;
             Negara::updateOrCreate(
-                ['kode_iso' => $data['kode_iso']],
-                array_merge($data, ['status_pemantauan' => true])
+                ['kode_iso' => $iso3],
+                array_merge($data, [
+                    'bendera' => $iso2,
+                    'status_pemantauan' => true
+                ])
             );
             $ditambahkan++;
         }

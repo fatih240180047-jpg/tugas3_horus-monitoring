@@ -157,6 +157,31 @@ class Negara extends Model
      */
     public function getBenderaAttribute(): string
     {
-        return $this->attributes['bendera'] ?? '🏳️';
+        return $this->attributes['bendera'] ?? 'id';
+    }
+
+    /**
+     * Dapatkan URL bendera dari FlagCDN berdasarkan kode ISO 2 huruf.
+     */
+    public function getBenderaUrlAttribute(): string
+    {
+        $code = strtolower($this->bendera);
+        // Fallback jika tidak ada bendera
+        if (empty($code) || strlen($code) > 3) {
+            $code = 'un'; // Unknown/United Nations flag
+        }
+        // Jika kodenya masih 3 huruf (karena seeder belum jalan), coba cari fallback
+        if (strlen($code) === 3) {
+            $map = [
+                'idn' => 'id', 'sgp' => 'sg', 'mys' => 'my', 'tha' => 'th', 'vnm' => 'vn',
+                'phl' => 'ph', 'chn' => 'cn', 'jpn' => 'jp', 'kor' => 'kr', 'ind' => 'in',
+                'sau' => 'sa', 'are' => 'ae', 'deu' => 'de', 'nld' => 'nl', 'gbr' => 'gb',
+                'fra' => 'fr', 'usa' => 'us', 'can' => 'ca', 'bra' => 'br', 'aus' => 'au',
+                'zaf' => 'za', 'nga' => 'ng', 'rus' => 'ru', 'pak' => 'pk', 'bgd' => 'bd',
+                'mex' => 'mx', 'tur' => 'tr', 'egy' => 'eg', 'arg' => 'ar', 'ukr' => 'ua'
+            ];
+            $code = $map[$code] ?? substr($code, 0, 2);
+        }
+        return "https://flagcdn.com/w40/{$code}.png";
     }
 }

@@ -128,6 +128,75 @@
         align-items: center;
         z-index: 50;
     }
+
+    /* CSS Animasi Marker & Rute Kelas Dunia */
+    .user-pulse-container {
+        position: relative;
+    }
+    .user-pulse-marker {
+        width: 14px;
+        height: 14px;
+        background: #3b82f6;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 0 12px #3b82f6;
+    }
+    .user-pulse-container::after {
+        content: '';
+        width: 30px;
+        height: 30px;
+        border: 2.5px solid #3b82f6;
+        border-radius: 50%;
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        animation: user-pulse-anim 1.8s infinite ease-out;
+        opacity: 0;
+        pointer-events: none;
+    }
+    @keyframes user-pulse-anim {
+        0% { transform: scale(0.3); opacity: 0.8; }
+        100% { transform: scale(1.2); opacity: 0; }
+    }
+
+    .animated-route-line {
+        stroke-dasharray: 8;
+        animation: dash-animation 25s linear infinite;
+    }
+    @keyframes dash-animation {
+        to {
+            stroke-dashoffset: -1000;
+        }
+    }
+
+    .risk-pulse-container {
+        position: relative;
+    }
+    .risk-pulse-kritis { animation: pulse-kritis 1.5s infinite; }
+    .risk-pulse-tinggi { animation: pulse-tinggi 1.5s infinite; }
+    .risk-pulse-sedang { animation: pulse-sedang 1.5s infinite; }
+    .risk-pulse-rendah { animation: pulse-rendah 1.5s infinite; }
+
+    @keyframes pulse-kritis {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8); }
+        70% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    @keyframes pulse-tinggi {
+        0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.8); }
+        70% { box-shadow: 0 0 0 7px rgba(249, 115, 22, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+    }
+    @keyframes pulse-sedang {
+        0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.8); }
+        70% { box-shadow: 0 0 0 7px rgba(234, 179, 8, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+    }
+    @keyframes pulse-rendah {
+        0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.8); }
+        70% { box-shadow: 0 0 0 7px rgba(34, 197, 94, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
 </style>
 @endsection
 
@@ -171,6 +240,35 @@
         <!-- Loading Overlay -->
         <div x-show="isLoading" class="loader" x-transition>
             <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: #ef4444;"></i>
+        </div>
+
+        <!-- Simulator Bobot Risiko Collapsible Panel -->
+        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 12px; margin-bottom: 20px;">
+            <div style="font-family: 'Outfit'; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--warna-teks-putih);" @click="showSimulator = !showSimulator">
+                <span><i class="fa-solid fa-sliders" style="color: #ef4444; margin-right: 6px;"></i> Simulator Bobot Risiko (Real-time)</span>
+                <i class="fa-solid" :class="showSimulator ? 'fa-chevron-up' : 'fa-chevron-down'" style="font-size: 10px;"></i>
+            </div>
+            <div x-show="showSimulator" style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;" x-transition>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                    <span style="color:#9ca3af;">Cuaca: <strong style="color:#fff;" x-text="simBobotCuaca + '%'"></strong></span>
+                    <input type="range" min="0" max="100" x-model="simBobotCuaca" @input="recalculateRisks()" style="width: 60%; accent-color: #ef4444; height: 4px; border-radius: 2px;">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                    <span style="color:#9ca3af;">Ekonomi / Inflasi: <strong style="color:#fff;" x-text="simBobotEkonomi + '%'"></strong></span>
+                    <input type="range" min="0" max="100" x-model="simBobotEkonomi" @input="recalculateRisks()" style="width: 60%; accent-color: #ef4444; height: 4px; border-radius: 2px;">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                    <span style="color:#9ca3af;">Nilai Tukar Valas: <strong style="color:#fff;" x-text="simBobotKurs + '%'"></strong></span>
+                    <input type="range" min="0" max="100" x-model="simBobotKurs" @input="recalculateRisks()" style="width: 60%; accent-color: #ef4444; height: 4px; border-radius: 2px;">
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                    <span style="color:#9ca3af;">Sentimen Berita SCM: <strong style="color:#fff;" x-text="simBobotBerita + '%'"></strong></span>
+                    <input type="range" min="0" max="100" x-model="simBobotBerita" @input="recalculateRisks()" style="width: 60%; accent-color: #ef4444; height: 4px; border-radius: 2px;">
+                </div>
+                <div style="font-size: 9.5px; color: #9ca3af; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
+                    Total Bobot: <span style="color:#fff; font-weight:700;" x-text="Number(simBobotCuaca)+Number(simBobotEkonomi)+Number(simBobotKurs)+Number(simBobotBerita) + '%'"></span> (Sisa dialokasikan untuk logistik & politik)
+                </div>
+            </div>
         </div>
 
         <!-- STATE 1: Default Global Overview (Jika belum ada negara terpilih) -->
@@ -221,7 +319,7 @@
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; border-bottom: 1px solid #374151; padding-bottom: 16px;">
                 <div>
                     <h2 style="font-family: 'Outfit'; font-size: 28px; font-weight: 700; display: flex; align-items: center; gap: 12px;">
-                        
+                        <img :src="'https://flagcdn.com/w40/' + dataNegara?.negara?.bendera + '.png'" style="height: 20px; width: 30px; object-fit: cover; border-radius: 3px; border: 1px solid rgba(255,255,255,0.15);" :alt="dataNegara?.negara?.nama + ' Flag'">
                         <span x-text="dataNegara?.negara?.nama"></span>
                     </h2>
                     <div style="font-size: 12px; color: #9ca3af; margin-top: 4px; display:flex;align-items:center;gap:12px;">
@@ -242,9 +340,9 @@
                 <div style="text-align: right;" x-show="dataNegara?.risiko">
                     <div style="font-size: 10px; color: #9ca3af; text-transform: uppercase;">Skor Risiko Total</div>
                     <div style="font-size: 28px; font-weight: 800; font-family: 'Outfit';" 
-                         :style="getWarnaRisiko(dataNegara?.risiko?.level)" 
-                         x-text="dataNegara?.risiko?.skor + '/100'"></div>
-                    <div class="badge-dynamic" :style="getBgRisiko(dataNegara?.risiko?.level)" x-text="dataNegara?.risiko?.level"></div>
+                         :style="getWarnaRisiko(simLevelTerkini || dataNegara?.risiko?.level)" 
+                         x-text="(simSkorTerkini !== null ? simSkorTerkini : dataNegara?.risiko?.skor) + '/100'"></div>
+                    <div class="badge-dynamic" :style="getBgRisiko(simLevelTerkini || dataNegara?.risiko?.level)" x-text="simLevelTerkini || dataNegara?.risiko?.level"></div>
                 </div>
             </div>
 
@@ -347,18 +445,19 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('dashboardSPA', () => ({
-            selectedIso: '',
-            selectedPort: '',
-            isLoading: false,
-            dataNegara: null,
-            map: null,
-            forexChartInstance: null,
+            // Geolocation & Simulator State
+            showSimulator: false,
+            simBobotCuaca: 20,
+            simBobotEkonomi: 25,
+            simBobotKurs: 15,
+            simBobotBerita: 20,
+            simSkorTerkini: null,
+            simLevelTerkini: null,
 
-            // Raw Data dari backend
-            dataPetaServer: @json($dataPeta),
-            ruteServer: @json($ruteEkspedisi),
-            dataPelabuhan: @json($dataPelabuhan),
-            favoritIds: @json($favoritIds),
+            markerList: [],
+            userCoords: null,
+            userMarker: null,
+            routeLine: null,
 
             initPeta() {
                 // Inisiasi Peta Leaflet (Tema Gelap ala Control Center)
@@ -372,36 +471,43 @@
                     attribution: '&copy; CARTO'
                 }).addTo(this.map);
 
+                // Jalankan Deteksi Lokasi Pengguna
+                this.detectUserLocation();
+
                 // Gambar Rute Maritim
                 this.ruteServer.forEach(rute => {
                     L.polyline([rute.asal, rute.tujuan], {
-                        color: '#3b82f6', weight: 1.5, opacity: 0.3, dashArray: '5, 10'
+                        color: '#3b82f6', weight: 1.5, opacity: 0.25, dashArray: '5, 10'
                     }).addTo(this.map);
                 });
 
-                // Gambar Node / Marker
+                // Gambar Node / Marker Berdenyut Kustom
                 this.dataPetaServer.forEach(point => {
                     if (point.lintang && point.bujur) {
-                        let marker = L.circleMarker([point.lintang, point.bujur], {
-                            radius: 8,
-                            fillColor: point.warna,
-                            color: '#0f172a',
-                            weight: 2,
-                            opacity: 1,
-                            fillOpacity: 0.9
-                        }).addTo(this.map);
+                        let levelRisiko = point.level_risiko || 'rendah';
+                        
+                        let pulsingIcon = L.divIcon({
+                            html: `<div style="background-color: ${point.warna}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px ${point.warna};" class="risk-pulse-${levelRisiko.toLowerCase()}"></div>`,
+                            className: 'risk-pulse-container',
+                            iconSize: [12, 12],
+                            iconAnchor: [6, 6]
+                        });
+
+                        let marker = L.marker([point.lintang, point.bujur], { icon: pulsingIcon }).addTo(this.map);
+                        marker.pointData = point; // Simpan data untuk simulator
+                        this.markerList.push(marker);
 
                         // Tooltip Hover Sederhana
-                        marker.bindTooltip(`<strong>${point.nama}</strong><br>Skor: ${point.skor_total}`, {
+                        marker.bindTooltip(`<strong>${point.nama}</strong><br>Skor Risiko: ${point.skor_total}`, {
                             className: 'dark-tooltip', direction: 'top'
                         });
 
-                        // Event Klik Marker -> Fetch Data
+                        // Event Klik Marker -> Fetch Data & Buat Rute Hubungan ke User
                         marker.on('click', () => {
                             this.selectedIso = point.kode_iso;
                             this.fetchDataNegara(point.kode_iso);
-                            // Animasi FlyTo
-                            this.map.flyTo([point.lintang, point.bujur], 4, { duration: 1.5 });
+                            this.drawConnectionLine([point.lintang, point.bujur]);
+                            this.map.flyTo([point.lintang, point.bujur], 4, { duration: 1.2 });
                         });
                     }
                 });
@@ -409,12 +515,11 @@
                 // Gambar Marker Pelabuhan (Jangkar)
                 this.dataPelabuhan.forEach(port => {
                     if (port.lintang && port.bujur) {
-                        // Gunakan divIcon untuk icon fontawesome jangkar
                         let portIcon = L.divIcon({
-                            html: `<div style="background-color: ${port.warna}; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.5);"><i class="fa-solid fa-anchor" style="color: white; font-size: 10px;"></i></div>`,
+                            html: `<div style="background-color: ${port.warna}; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.5);"><i class="fa-solid fa-anchor" style="color: white; font-size: 10px;"></i></div>`,
                             className: '',
-                            iconSize: [20, 20],
-                            iconAnchor: [10, 10]
+                            iconSize: [22, 22],
+                            iconAnchor: [11, 11]
                         });
 
                         let marker = L.marker([port.lintang, port.bujur], { icon: portIcon }).addTo(this.map);
@@ -432,8 +537,106 @@
                         marker.on('click', () => {
                             this.selectedIso = port.kode_iso;
                             this.fetchDataNegara(port.kode_iso);
-                            this.map.flyTo([port.lintang, port.bujur], 6, { duration: 1.5 });
+                            this.drawConnectionLine([port.lintang, port.bujur]);
+                            this.map.flyTo([port.lintang, port.bujur], 6, { duration: 1.2 });
                         });
+                    }
+                });
+            },
+
+            detectUserLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        this.userCoords = [position.coords.latitude, position.coords.longitude];
+                        this.renderUserMarker();
+                    }, error => {
+                        console.warn("Geolocation tidak diizinkan, menggunakan koordinat server (Jakarta):", error);
+                        this.userCoords = [-6.2088, 106.8456]; // Fallback Jakarta
+                        this.renderUserMarker();
+                    });
+                } else {
+                    this.userCoords = [-6.2088, 106.8456];
+                    this.renderUserMarker();
+                }
+            },
+
+            renderUserMarker() {
+                if (!this.userCoords) return;
+                let userIcon = L.divIcon({
+                    html: '<div class="user-pulse-marker"></div>',
+                    className: 'user-pulse-container',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                this.userMarker = L.marker(this.userCoords, { icon: userIcon }).addTo(this.map);
+                this.userMarker.bindTooltip('<strong>Lokasi Anda (Akses Sistem)</strong>', { className: 'dark-tooltip', direction: 'top' });
+            },
+
+            drawConnectionLine(targetCoords) {
+                if (!this.userCoords) return;
+                if (this.routeLine) {
+                    this.map.removeLayer(this.routeLine);
+                }
+                
+                // Polyline interaktif berpendar ke arah negara/pelabuhan
+                this.routeLine = L.polyline([this.userCoords, targetCoords], {
+                    color: '#ef4444',
+                    weight: 2.5,
+                    opacity: 0.8,
+                    dashArray: '8, 8',
+                    className: 'animated-route-line'
+                }).addTo(this.map);
+
+                // Zoom ke area rute penghubung
+                let bounds = L.latLngBounds([this.userCoords, targetCoords]);
+                this.map.fitBounds(bounds, { padding: [60, 60], maxZoom: 6 });
+            },
+
+            recalculateRisks() {
+                const wCuaca = Number(this.simBobotCuaca);
+                const wEko = Number(this.simBobotEkonomi);
+                const wKurs = Number(this.simBobotKurs);
+                const wBerita = Number(this.simBobotBerita);
+                const wSisa = 100 - (wCuaca + wEko + wKurs + wBerita);
+                const wLogistik = wSisa > 0 ? wSisa / 2 : 0;
+                const wPolitik = wSisa > 0 ? wSisa / 2 : 0;
+
+                this.markerList.forEach(m => {
+                    const pt = m.pointData;
+                    if (!pt) return;
+
+                    let newScore = (
+                        (pt.skor_cuaca * wCuaca) +
+                        (pt.skor_ekonomi * wEko) +
+                        (pt.skor_nilai_tukar * wKurs) +
+                        (pt.skor_berita * wBerita) +
+                        (pt.skor_logistik * wLogistik) +
+                        (pt.skor_politik * wPolitik)
+                    ) / 100;
+
+                    newScore = Math.min(100, Math.max(0, Math.round(newScore * 100) / 100));
+                    
+                    let level = 'Rendah';
+                    let warna = '#16a34a';
+                    if (newScore >= 70) { level = 'Kritis'; warna = '#dc2626'; }
+                    else if (newScore >= 45) { level = 'Tinggi'; warna = '#f97316'; }
+                    else if (newScore >= 25) { level = 'Sedang'; warna = '#eab308'; }
+
+                    const pulsingIconHtml = `<div style="background-color: ${warna}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px ${warna};" class="risk-pulse-${level.toLowerCase()}"></div>`;
+                    
+                    m.setIcon(L.divIcon({
+                        html: pulsingIconHtml,
+                        className: 'risk-pulse-container',
+                        iconSize: [12, 12],
+                        iconAnchor: [6, 6]
+                    }));
+
+                    m.setTooltipContent(`<strong>${pt.nama}</strong><br>Skor Terhitung: ${newScore}`);
+
+                    // Sinkronisasi data di detail panel jika negara ini aktif
+                    if (this.dataNegara && this.dataNegara.negara.kode_iso === pt.kode_iso) {
+                        this.simSkorTerkini = newScore;
+                        this.simLevelTerkini = level;
                     }
                 });
             },
@@ -447,6 +650,8 @@
             async fetchDataNegara(kodeIso) {
                 if (!kodeIso) {
                     this.dataNegara = null;
+                    this.simSkorTerkini = null;
+                    this.simLevelTerkini = null;
                     return;
                 }
 
@@ -458,6 +663,15 @@
                     const data = await response.json();
                     
                     this.dataNegara = data;
+                    
+                    // Reset status simulasi untuk negara baru
+                    this.simSkorTerkini = null;
+                    this.simLevelTerkini = null;
+
+                    // Jalankan kalkulasi simulasi bobot di awal jika simulator sedang aktif/diubah
+                    if (this.showSimulator) {
+                        this.recalculateRisks();
+                    }
                     
                     // Render Chart setelah Alpine selesai update DOM
                     this.$nextTick(() => {
