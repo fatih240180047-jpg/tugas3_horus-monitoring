@@ -41,6 +41,21 @@ class LayananBerita implements LayananBeritaInterface
     {
         $start  = microtime(true);
         $config = config('intelijen.berita');
+        $simulasi = config('intelijen.simulasi.aktif');
+
+        if ($simulasi) {
+            Log::info("Mode simulasi aktif untuk berita {$negara->nama}");
+            $hasilKoleksi = new Collection();
+            for ($i = 1; $i <= 5; $i++) {
+                $dto = DtoBerita::dariSimulasi($negara->kode_iso, $i);
+                $artikel = $this->repositoriBerita->simpan($negara, $dto);
+                if ($artikel) {
+                    $hasilKoleksi->push($artikel);
+                }
+            }
+            return $hasilKoleksi;
+        }
+
         $gnewsKey = config('intelijen.berita.gnews_kunci_api', '');
         $hasilKoleksi = new Collection();
 

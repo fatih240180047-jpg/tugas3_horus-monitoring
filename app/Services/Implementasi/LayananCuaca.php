@@ -50,6 +50,11 @@ class LayananCuaca implements LayananCuacaInterface
     {
         $start = microtime(true);
 
+        if (config('intelijen.simulasi.aktif')) {
+            Log::info("Mode simulasi aktif untuk cuaca {$negara->nama}");
+            return $this->ambilCuacaTerakhirDariDb($negara);
+        }
+
         // Validasi koordinat negara
         if (!$negara->lintang || !$negara->bujur) {
             Log::warning("Koordinat tidak tersedia untuk {$negara->nama}. Mencari data riil terakhir dari database.");
@@ -57,7 +62,7 @@ class LayananCuaca implements LayananCuacaInterface
         }
 
         try {
-            $response = Http::timeout(30)->get(self::OPEN_METEO_URL, [
+            $response = Http::timeout(10)->get(self::OPEN_METEO_URL, [
                 'latitude'        => $negara->lintang,
                 'longitude'       => $negara->bujur,
                 'daily'           => implode(',', self::PARAMETER_HARIAN),
@@ -104,7 +109,7 @@ class LayananCuaca implements LayananCuacaInterface
     }
 
     /**
-     * Cari data cuaca riil terakhir dari database.
+     * Cari data cuaca riil terakhir dari database atau hasilkan data simulasi jika kosong.
      */
     private function ambilCuacaTerakhirDariDb(Negara $negara): CatatanCuaca
     {
@@ -116,7 +121,44 @@ class LayananCuaca implements LayananCuacaInterface
             return $latest;
         }
 
-        throw new Exception("Data cuaca tidak tersedia untuk {$negara->nama} dan tidak ada rekaman historis di database.");
+        Log::info("Menghasilkan data cuaca tiruan untuk {$negara->nama}");
+        $catatanHariIni = null;
+        for ($i = 0; $i < 7; $i++) {
+            $tanggal = date('Y-m-d', strtotime("+$i days"));
+            $suhuMin = (float) rand(10, 20);
+            $suhuMax = (float) rand(22, 35);
+            $suhu = ($suhuMin + $suhuMax) / 2;
+            $kelembaban = (float) rand(50, 90);
+            $curahHujan = (float) (rand(0, 5) === 0 ? rand(10, 60) : rand(0, 8));
+            $kecepatanAngin = (float) rand(5, 45);
+            
+            $wmoCodes = [0, 1, 2, 3, 51, 61, 80, 95];
+            $wmoCode = $wmoCodes[array_rand($wmoCodes)];
+            $kondisi = DtoCuaca::terjemahkanKodeWmo($wmoCode);
+            
+            $insight = DtoCuaca::analisaInsightScm($curahHujan, $kecepatanAngin, $suhuMax, $suhuMin, $kondisi);
+
+            $dto = new DtoCuaca(
+                kodeIso: $negara->kode_iso,
+                tanggalObservasi: $tanggal,
+                suhu: $suhu,
+                suhuMin: $suhuMin,
+                suhuMax: $suhuMax,
+                kelembaban: $kelembaban,
+                curahHujan: $curahHujan,
+                kecepatanAngin: $kecepatanAngin,
+                kondisiCuaca: $kondisi,
+                insightScm: $insight,
+                sumberApi: 'Open-Meteo (Simulated Fallback)'
+            );
+
+            $catatan = $this->repositoriCuaca->simpan($negara, $dto);
+            if ($i === 0) {
+                $catatanHariIni = $catatan;
+            }
+        }
+
+        return $catatanHariIni;
     }
 
     /**

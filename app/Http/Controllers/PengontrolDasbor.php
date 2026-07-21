@@ -202,10 +202,11 @@ class PengontrolDasbor extends Controller
 
         return response()->json([
             'negara' => [
-                'id'       => $negara->id,
-                'nama'     => $negara->nama,
-                'kode_iso' => $negara->kode_iso,
-                'bendera'  => $negara->bendera,
+                'id'          => $negara->id,
+                'nama'        => $negara->nama,
+                'kode_iso'    => $negara->kode_iso,
+                'bendera'     => $negara->bendera,
+                'bendera_url' => $negara->bendera_url,
             ],
             'risiko' => $risikoTerkini ? [
                 'skor' => $risikoTerkini->skor_total,

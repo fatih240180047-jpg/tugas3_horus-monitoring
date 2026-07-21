@@ -2,211 +2,182 @@
 
 @section('judul', 'Kelola Pengguna')
 
-@section('gaya_tambahan')
-<style>
-    .tabel-admin {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 13.5px;
-    }
-    .tabel-admin th {
-        background: rgba(17, 24, 39, 0.9);
-        padding: 12px 16px;
-        text-align: left;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: var(--warna-teks-abu);
-        border-bottom: 1px solid rgba(55, 65, 81, 0.4);
-    }
-    .tabel-admin td {
-        padding: 14px 16px;
-        border-bottom: 1px solid rgba(55, 65, 81, 0.2);
-        vertical-align: middle;
-    }
-    .tabel-admin tr:hover td { background: rgba(255,255,255,0.02); }
-    .tabel-admin tr:last-child td { border-bottom: none; }
-
-    .avatar-kecil {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #991b1b, #7f1d1d);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 13px;
-        color: #fff;
-        flex-shrink: 0;
-        border: 2px solid rgba(239,68,68,0.25);
-    }
-
-    .filter-bar {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-    }
-
-    .filter-bar .form-input {
-        max-width: 200px;
-        padding: 9px 12px;
-    }
-
-    .filter-bar .form-input select { background: rgba(13, 17, 23, 0.8); }
-
-    .aksi-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        border: none;
-        transition: all 0.2s ease;
-    }
-    .aksi-edit { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #93c5fd; }
-    .aksi-edit:hover { background: rgba(59,130,246,0.22); }
-    .aksi-hapus { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
-    .aksi-hapus:hover { background: rgba(239,68,68,0.2); }
-    .aksi-pulihkan { background: rgba(22,163,74,0.1); border: 1px solid rgba(22,163,74,0.3); color: #86efac; }
-    .aksi-pulihkan:hover { background: rgba(22,163,74,0.2); }
-</style>
-@endsection
-
 @section('konten')
-<div class="header-konten" style="margin-bottom:20px;">
+<!-- Header Area -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-        <div style="font-size:12px;color:var(--warna-teks-abu);margin-bottom:4px;">Administrasi Sistem</div>
-        <div style="font-size:22px;font-weight:700;font-family:'Outfit',sans-serif;">Manajemen Pengguna</div>
+        <span class="text-[10px] text-outline font-bold uppercase tracking-widest block mb-0.5">Administrasi Sistem</span>
+        <h2 class="font-headline-md text-base font-black text-on-surface flex items-center gap-2">
+            <span class="material-symbols-outlined text-[20px] text-primary">manage_accounts</span>
+            Manajemen Pengguna Platform
+        </h2>
     </div>
-    <a href="{{ route('admin.pengguna.buat') }}" class="btn btn-primer">
-        <i class="fa-solid fa-user-plus"></i> Tambah Pengguna
+    
+    <a href="{{ route('admin.pengguna.buat') }}" 
+       class="flex items-center gap-1.5 bg-primary hover:opacity-90 text-on-primary font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-lg shadow-lg transition-all">
+        <span class="material-symbols-outlined text-[16px]">person_add</span>
+        Tambah Pengguna
     </a>
 </div>
 
-<!-- Filter Bar -->
-<form method="GET" action="{{ route('admin.pengguna.indeks') }}" class="filter-bar">
-    <input type="text" name="q" class="form-input" placeholder="Cari nama / email..." value="{{ request('q') }}" style="max-width:220px;">
-    <select name="peran" class="form-input" style="max-width:200px;">
-        <option value="">-- Semua Peran --</option>
-        @foreach($semuaPeran as $peran)
-            <option value="{{ $peran->slug }}" {{ request('peran') === $peran->slug ? 'selected' : '' }}>{{ $peran->name }}</option>
-        @endforeach
-    </select>
-    <select name="status" class="form-input" style="max-width:160px;">
-        <option value="">-- Semua Status --</option>
-        <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
-        <option value="nonaktif" {{ request('status') === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
-        <option value="dihapus" {{ request('status') === 'dihapus' ? 'selected' : '' }}>Dihapus</option>
-    </select>
-    <button type="submit" class="btn btn-sekunder"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
-    <a href="{{ route('admin.pengguna.indeks') }}" class="btn btn-sekunder" style="border:none;opacity:0.6;">Reset</a>
-</form>
-
-<div class="card-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div class="card-panel-title" style="margin:0;padding:0;border:none;">
-            <i class="fa-solid fa-users" style="color:var(--warna-merah-terang)"></i>
-            Total {{ $pengguna->total() }} pengguna terdaftar
-        </div>
+<!-- Filters Bar -->
+<form method="GET" action="{{ route('admin.pengguna.indeks') }}" class="flex flex-wrap gap-3 mb-6 bg-surface-container-low border border-outline-variant p-4 rounded-xl shadow-md items-center">
+    <div class="flex flex-col gap-1.5">
+        <input type="text" name="q" placeholder="Cari nama / email..." value="{{ request('q') }}"
+               class="bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 text-xs text-on-surface focus:ring-1 focus:ring-primary focus:outline-none placeholder-outline-variant font-semibold w-52">
+    </div>
+    
+    <div class="flex flex-col gap-1.5">
+        <select name="peran" class="bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 text-xs text-on-surface focus:ring-1 focus:ring-primary focus:outline-none font-semibold cursor-pointer w-48">
+            <option value="">-- Semua Peran --</option>
+            @foreach($semuaPeran as $peran)
+                <option value="{{ $peran->slug }}" {{ request('peran') === $peran->slug ? 'selected' : '' }}>{{ $peran->name }}</option>
+            @endforeach
+        </select>
     </div>
 
-    <div style="overflow-x:auto;">
-        <table class="tabel-admin">
+    <div class="flex flex-col gap-1.5">
+        <select name="status" class="bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2 text-xs text-on-surface focus:ring-1 focus:ring-primary focus:outline-none font-semibold cursor-pointer w-40">
+            <option value="">-- Semua Status --</option>
+            <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+            <option value="nonaktif" {{ request('status') === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+            <option value="dihapus" {{ request('status') === 'dihapus' ? 'selected' : '' }}>Dihapus</option>
+        </select>
+    </div>
+
+    <div class="flex gap-2">
+        <button type="submit" class="flex items-center gap-1.5 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-on-surface font-bold text-xs uppercase tracking-wider px-4 py-2 rounded-lg transition-all shadow">
+            <span class="material-symbols-outlined text-[15px]">search</span>
+            Filter
+        </button>
+        <a href="{{ route('admin.pengguna.indeks') }}" 
+           class="flex items-center justify-center border border-transparent text-on-surface-variant hover:text-on-surface font-bold text-xs uppercase tracking-wider px-3 py-2 rounded-lg transition-all">
+            Reset
+        </a>
+    </div>
+</form>
+
+<!-- Users List Table Card -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-6 shadow-xl flex flex-col gap-4">
+    <div class="border-b border-outline-variant/30 pb-3 flex justify-between items-center">
+        <h3 class="font-headline-md text-xs font-bold text-on-surface-variant flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">group</span>
+            Total Terdaftar: <span class="text-on-surface font-extrabold font-mono">{{ $pengguna->total() }}</span> Pengguna
+        </h3>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
             <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Pengguna</th>
-                    <th>Peran</th>
-                    <th>Status</th>
-                    <th>Login Terakhir</th>
-                    <th>Bergabung</th>
-                    <th>Aksi</th>
+                <tr class="border-b border-outline-variant text-on-surface-variant uppercase tracking-wider text-[10px] font-extrabold">
+                    <th class="pb-3 pr-4">#</th>
+                    <th class="pb-3 px-4">Pengguna</th>
+                    <th class="pb-3 px-4">Peran Utama</th>
+                    <th class="pb-3 px-4">Status</th>
+                    <th class="pb-3 px-4">Login Terakhir</th>
+                    <th class="pb-3 px-4">Bergabung</th>
+                    <th class="pb-3 pl-4 text-right">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-outline-variant/10 text-on-surface font-medium">
                 @forelse($pengguna as $p)
-                <tr style="{{ $p->trashed() ? 'opacity:0.5;' : '' }}">
-                    <td style="color:var(--warna-teks-abu)">{{ $loop->iteration + ($pengguna->currentPage()-1)*$pengguna->perPage() }}</td>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:12px;">
-                            <div class="avatar-kecil">{{ strtoupper(substr($p->name, 0, 2)) }}</div>
-                            <div>
-                                <div style="font-weight:600;">{{ $p->name }}
-                                    @if(auth()->id() === $p->id)
-                                        <span style="font-size:10px;color:var(--warna-teks-abu);font-weight:400;"> (Anda)</span>
-                                    @endif
+                    <tr class="hover:bg-surface-container-highest/20 transition-all {{ $p->trashed() ? 'opacity-50' : '' }}">
+                        <td class="py-3.5 pr-4 text-outline font-bold font-mono">
+                            {{ $loop->iteration + ($pengguna->currentPage()-1)*$pengguna->perPage() }}
+                        </td>
+                        <td class="py-3.5 px-4 font-bold text-sm text-on-surface">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center font-bold text-xs text-primary uppercase select-none flex-shrink-0">
+                                    {{ strtoupper(substr($p->name, 0, 2)) }}
                                 </div>
-                                <div style="font-size:12px;color:var(--warna-teks-abu);">{{ $p->email }}</div>
+                                <div class="leading-tight">
+                                    <h4 class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+                                        <span>{{ $p->name }}</span>
+                                        @if(auth()->id() === $p->id)
+                                            <span class="bg-primary/10 border border-primary/20 text-primary text-[8px] font-extrabold uppercase px-1 py-0.25 rounded">Anda</span>
+                                        @endif
+                                    </h4>
+                                    <span class="text-[10px] text-outline font-semibold font-mono">{{ $p->email }}</span>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td>
-                        @foreach($p->peran as $peran)
-                            <span class="badge" style="background:rgba(153,27,27,0.15);border:1px solid rgba(153,27,27,0.4);color:#fca5a5;">{{ $peran->name }}</span>
-                        @endforeach
-                    </td>
-                    <td>
-                        @if($p->trashed())
-                            <span class="badge badge-kritis">Dihapus</span>
-                        @elseif($p->status)
-                            <span class="badge badge-rendah">Aktif</span>
-                        @else
-                            <span class="badge" style="background:rgba(107,114,128,0.15);color:#9ca3af;border:1px solid rgba(107,114,128,0.3);">Nonaktif</span>
-                        @endif
-                    </td>
-                    <td style="color:var(--warna-teks-abu);font-size:12px;">
-                        {{ $p->last_login_at ? $p->last_login_at->diffForHumans() : 'Belum pernah' }}
-                    </td>
-                    <td style="color:var(--warna-teks-abu);font-size:12px;">
-                        {{ $p->created_at->format('d M Y') }}
-                    </td>
-                    <td>
-                        <div style="display:flex;gap:6px;align-items:center;">
-                            @if(!$p->trashed())
-                                <a href="{{ route('admin.pengguna.edit', $p->id) }}" class="aksi-btn aksi-edit">
-                                    <i class="fa-solid fa-pen-to-square"></i> Edit
-                                </a>
-                                @if(auth()->id() !== $p->id)
-                                <form action="{{ route('admin.pengguna.hapus', $p->id) }}" method="POST"
-                                      onsubmit="return confirm('Nonaktifkan pengguna {{ $p->name }}?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="aksi-btn aksi-hapus">
-                                        <i class="fa-solid fa-user-slash"></i> Nonaktifkan
-                                    </button>
-                                </form>
-                                @endif
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="flex flex-wrap gap-1">
+                                @foreach($p->peran as $peran)
+                                    <span class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-primary/10 text-primary border border-primary/20">
+                                        {{ $peran->name }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            @if($p->trashed())
+                                <span class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-error-container text-on-error-container border border-error/20">
+                                    Dihapus
+                                </span>
+                            @elseif($p->status)
+                                <span class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                    Aktif
+                                </span>
                             @else
-                                <form action="{{ route('admin.pengguna.pulihkan', $p->id) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="aksi-btn aksi-pulihkan">
-                                        <i class="fa-solid fa-rotate-left"></i> Pulihkan
-                                    </button>
-                                </form>
+                                <span class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase bg-surface-container-highest text-on-surface-variant border border-outline-variant">
+                                    Nonaktif
+                                </span>
                             @endif
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+                        <td class="py-3.5 px-4 text-on-surface-variant font-semibold whitespace-nowrap">
+                            {{ $p->last_login_at ? $p->last_login_at->diffForHumans() : 'Belum pernah' }}
+                        </td>
+                        <td class="py-3.5 px-4 text-on-surface-variant font-semibold whitespace-nowrap">
+                            {{ $p->created_at->format('d M Y') }}
+                        </td>
+                        <td class="py-3.5 pl-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                @if(!$p->trashed())
+                                    <a href="{{ route('admin.pengguna.edit', $p->id) }}" 
+                                       class="flex items-center gap-1 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-on-surface font-bold text-[10px] uppercase tracking-wider px-2.5 py-1.5 rounded-lg transition-all shadow-sm">
+                                        <span class="material-symbols-outlined text-[13px]">edit</span>
+                                        Edit
+                                    </a>
+                                    
+                                    @if(auth()->id() !== $p->id)
+                                        <form action="{{ route('admin.pengguna.hapus', $p->id) }}" method="POST"
+                                              onsubmit="return confirm('Nonaktifkan pengguna {{ $p->name }}?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" 
+                                                    class="flex items-center gap-1 bg-error-container/10 border border-error/20 hover:bg-error-container/20 text-error font-bold text-[10px] uppercase tracking-wider px-2.5 py-1.5 rounded-lg transition-all">
+                                                <span class="material-symbols-outlined text-[13px]">block</span>
+                                                Nonaktif
+                                            </button>
+                                        </form>
+                                    @endif
+                                @else
+                                    <form action="{{ route('admin.pengguna.pulihkan', $p->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="flex items-center gap-1 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 text-emerald-400 font-bold text-[10px] uppercase tracking-wider px-2.5 py-1.5 rounded-lg transition-all">
+                                            <span class="material-symbols-outlined text-[13px]">restore</span>
+                                            Pulihkan
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
                 @empty
-                <tr>
-                    <td colspan="7" style="text-align:center;padding:40px;color:var(--warna-teks-abu);">
-                        <i class="fa-solid fa-users-slash" style="font-size:32px;margin-bottom:12px;display:block;opacity:0.4;"></i>
-                        Tidak ada pengguna yang sesuai filter.
-                    </td>
-                </tr>
+                    <tr>
+                        <td colspan="7" class="py-8 text-center text-on-surface-variant italic border border-dashed border-outline-variant/50 rounded-lg">
+                            Tidak ada pengguna yang sesuai filter.
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
     <!-- Pagination -->
-    <div style="margin-top:16px;">{{ $pengguna->links() }}</div>
+    <div class="mt-4">
+        {{ $pengguna->links() }}
+    </div>
 </div>
 @endsection

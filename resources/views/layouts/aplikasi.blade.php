@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html class="dark" lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,652 +10,289 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Material Symbols Outlined -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     
-    <!-- Alpine.js & Chart.js -->
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Alpine.js, Collapse Plugin, & Chart.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.13.3/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <style>
-        /* ================================================
-         * HORUS DESIGN SYSTEM — Premium Dark Theme v2.0
-         * ================================================ */
-        :root {
-            /* Core Colors */
-            --c-bg:           #080c14;
-            --c-surface:      #0d1420;
-            --c-surface-2:    #111827;
-            --c-surface-3:    #1a2235;
-            --c-border:       rgba(255,255,255,0.07);
-            --c-border-hover: rgba(255,255,255,0.14);
-
-            /* Brand Accent */
-            --c-red:          #e03131;
-            --c-red-light:    #ff4d4f;
-            --c-red-dim:      rgba(224, 49, 49, 0.12);
-            --c-red-glow:     rgba(224, 49, 49, 0.25);
-
-            /* Status Colors */
-            --c-kritis:       #ff4d4f;
-            --c-tinggi:       #ff7a45;
-            --c-sedang:       #ffc53d;
-            --c-rendah:       #52c41a;
-            --c-blue:         #4096ff;
-
-            /* Text */
-            --c-text-1:       #f0f4f8;
-            --c-text-2:       #8899aa;
-            --c-text-3:       #4d6070;
-
-            /* Glass */
-            --glass-bg:       rgba(13, 20, 32, 0.75);
-            --glass-border:   rgba(255,255,255,0.07);
-            --glass-blur:     blur(16px);
-
-            /* Sidebar */
-            --sidebar-lebar:     258px;
-            --sidebar-collapsed: 66px;
-            --sidebar-speed:     0.26s;
-
-            /* Legacy compat */
-            --warna-merah:         var(--c-red);
-            --warna-merah-terang:  var(--c-red-light);
-            --warna-merah-gelap:   #7f1d1d;
-            --warna-charcoal:      var(--c-bg);
-            --warna-charcoal-terang: var(--c-surface-2);
-            --warna-charcoal-border: rgba(255,255,255,0.09);
-            --warna-emas:          #d97706;
-            --warna-emas-terang:   #fbbf24;
-            --warna-teks-putih:    var(--c-text-1);
-            --warna-teks-abu:      var(--c-text-2);
-            --warna-kaca:          var(--glass-bg);
-            --blur-kaca:           var(--glass-blur);
-            --warna-hijau:         var(--c-rendah);
-            --warna-kuning:        var(--c-sedang);
-            --warna-oranye:        var(--c-tinggi);
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #040e1f; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #45464d; }
+        
+        .zebra-table tr:nth-child(even) { background-color: rgba(15, 23, 42, 0.5); }
+        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); }
+        
+        /* Smooth transition for sidebar width & main margin */
+        .sidebar-transition {
+            transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .main-transition {
+            transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--c-bg);
-            background-image:
-                radial-gradient(ellipse 80% 50% at 10% 0%, rgba(224,49,49,0.04) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 40% at 90% 100%, rgba(64,150,255,0.03) 0%, transparent 60%);
-            color: var(--c-text-1);
-            min-height: 100vh;
-            display: flex;
-            overflow-x: hidden;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: var(--sidebar-lebar);
-            background: linear-gradient(180deg, #060a10 0%, #0a0f1a 50%, #080c14 100%);
-            border-right: 1px solid rgba(255,255,255,0.06);
-            height: 100vh;
-            position: fixed;
-            top: 0; left: 0;
-            display: flex;
-            flex-direction: column;
-            z-index: 200;
-            transition: width var(--sidebar-speed) cubic-bezier(0.4,0,0.2,1);
-            overflow: hidden;
-            box-shadow: 4px 0 24px rgba(0,0,0,0.4);
-        }
-        .sidebar.collapsed { width: var(--sidebar-collapsed); }
-
-        /* Sidebar Header */
-        .sidebar-header {
-            padding: 16px 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            min-height: 64px;
-            flex-shrink: 0;
-        }
-        .sidebar-brand { display: flex; align-items: center; gap: 10px; overflow: hidden; min-width: 0; }
-        .brand-icon { font-size: 20px; color: var(--c-red-light); flex-shrink: 0; }
-        .sidebar-logo {
-            font-family: 'Outfit', sans-serif;
-            font-size: 17px;
-            font-weight: 800;
-            color: var(--c-text-1);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            overflow: hidden;
-            opacity: 1;
-            max-width: 160px;
-            transition: opacity var(--sidebar-speed) ease, max-width var(--sidebar-speed) ease;
-        }
-        .sidebar.collapsed .sidebar-logo { opacity: 0; max-width: 0; }
-
-        .sidebar-toggle {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: var(--c-text-3);
-            width: 28px; height: 28px;
-            border-radius: 7px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
-            font-size: 11px;
-        }
-        .sidebar-toggle:hover {
-            background: var(--c-red-dim);
-            border-color: rgba(224,49,49,0.4);
-            color: var(--c-red-light);
-        }
-
-        /* Sidebar Menu */
-        .menu-section-label {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 1.8px;
-            text-transform: uppercase;
-            color: rgba(136,153,170,0.35);
-            padding: 14px 14px 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            opacity: 1;
-            transition: opacity var(--sidebar-speed) ease;
-        }
-        .sidebar.collapsed .menu-section-label { opacity: 0; }
-
-        .sidebar-menu {
-            flex-grow: 1;
-            padding: 10px 8px;
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-        .sidebar-menu::-webkit-scrollbar { width: 2px; }
-        .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
-
-        .menu-item { position: relative; }
-        .menu-item a {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            padding: 9px 12px;
-            color: var(--c-text-2);
-            text-decoration: none;
-            border-radius: 9px;
-            font-weight: 500;
-            font-size: 13px;
-            transition: all 0.18s ease;
-            white-space: nowrap;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid transparent;
-        }
-        .menu-item a .menu-icon {
-            font-size: 13.5px;
-            flex-shrink: 0;
-            width: 18px;
-            text-align: center;
-            transition: color 0.18s ease;
-        }
-        .menu-item a .menu-text {
-            overflow: hidden;
-            opacity: 1;
-            max-width: 180px;
-            transition: opacity var(--sidebar-speed) ease, max-width var(--sidebar-speed) ease;
-        }
-        .sidebar.collapsed .menu-item a .menu-text { opacity: 0; max-width: 0; }
-
-        .menu-item a:hover {
-            background: rgba(255,255,255,0.04);
-            color: var(--c-text-1);
-            border-color: rgba(255,255,255,0.06);
-            transform: translateX(2px);
-        }
-        .menu-item.aktif a {
-            background: linear-gradient(135deg, rgba(224,49,49,0.18) 0%, rgba(224,49,49,0.08) 100%);
-            color: #fff;
-            border-color: rgba(224,49,49,0.3);
-            box-shadow: inset 3px 0 0 var(--c-red-light), 0 2px 12px rgba(224,49,49,0.15);
-            transform: none;
-        }
-        .menu-item.aktif a .menu-icon { color: var(--c-red-light); }
-
-        /* Sidebar Tooltip */
-        .menu-item .sidebar-tooltip {
-            position: absolute;
-            left: calc(var(--sidebar-collapsed) + 8px);
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--c-surface-3);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 8px;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.15s ease;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            z-index: 999;
-        }
-        .sidebar.collapsed .menu-item:hover .sidebar-tooltip { opacity: 1; }
-
-        .menu-divider {
-            height: 1px;
-            background: rgba(255,255,255,0.05);
-            margin: 6px 12px;
-        }
-
-        /* Sidebar Footer */
-        .sidebar-footer {
-            padding: 10px 8px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            overflow: hidden;
-            min-height: 60px;
-            flex-shrink: 0;
-        }
-        .user-avatar {
-            width: 34px; height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #e03131, #991b1b);
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 13px; color: #fff;
-            flex-shrink: 0;
-            border: 2px solid rgba(224,49,49,0.4);
-            box-shadow: 0 0 12px rgba(224,49,49,0.2);
-        }
-        .user-info-wrapper {
-            flex-grow: 1; overflow: hidden;
-            opacity: 1; max-width: 160px;
-            transition: opacity var(--sidebar-speed) ease, max-width var(--sidebar-speed) ease;
-        }
-        .sidebar.collapsed .user-info-wrapper { opacity: 0; max-width: 0; }
-        .user-name { font-weight: 600; font-size: 12px; color: var(--c-text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .user-role { font-size: 10px; color: var(--c-text-3); text-transform: uppercase; letter-spacing: 0.5px; }
-        .logout-btn {
-            background: none; border: none;
-            color: var(--c-text-3); font-size: 14px;
-            cursor: pointer; transition: color 0.2s ease;
-            flex-shrink: 0; padding: 5px; border-radius: 6px;
-        }
-        .logout-btn:hover { color: var(--c-red-light); background: var(--c-red-dim); }
-
-        /* ===== KONTEN UTAMA ===== */
-        .konten-utama {
-            margin-left: var(--sidebar-lebar);
-            flex-grow: 1;
-            padding: 28px 32px;
-            min-height: 100vh;
-            transition: margin-left var(--sidebar-speed) cubic-bezier(0.4,0,0.2,1);
-        }
-        .konten-utama.expanded { margin-left: var(--sidebar-collapsed); }
-
-        .header-konten {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 22px;
-        }
-        .judul-halaman {
-            font-family: 'Outfit', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-
-        /* ===== ALERTS ===== */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 500;
-            font-size: 13.5px;
-        }
-        .alert-sukses { background: rgba(82,196,26,0.08); border: 1px solid rgba(82,196,26,0.25); color: #95de64; }
-        .alert-error  { background: rgba(255,77,79,0.08); border: 1px solid rgba(255,77,79,0.25); color: #ff7875; }
-
-        /* ===== GRID KARTU METRIK ===== */
-        .grid-kartu {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .kartu-metrik {
-            background: var(--glass-bg);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--glass-border);
-            padding: 20px;
-            border-radius: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.22s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .kartu-metrik::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 60%);
-            pointer-events: none;
-        }
-        .kartu-metrik:hover {
-            transform: translateY(-3px);
-            border-color: rgba(255,255,255,0.12);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.35);
-        }
-        .metrik-detail h3 { font-size: 11px; color: var(--c-text-3); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; }
-        .metrik-detail .nilai { font-size: 28px; font-weight: 700; font-family: 'Outfit', sans-serif; }
-        .metrik-icon { font-size: 30px; opacity: 0.55; }
-
-        /* ===== CARD PANEL ===== */
-        .card-panel {
-            background: var(--glass-bg);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--glass-border);
-            border-radius: 14px;
-            padding: 22px;
-            margin-bottom: 24px;
-            position: relative;
-            overflow: hidden;
-        }
-        .card-panel::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            pointer-events: none;
-        }
-        .card-panel-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            padding-bottom: 12px;
-            letter-spacing: -0.1px;
-        }
-
-        /* ===== FORM ===== */
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 12px; color: var(--c-text-3); text-transform: uppercase; letter-spacing: 0.6px; }
-        .form-input {
-            width: 100%;
-            padding: 9px 13px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 8px;
-            color: var(--c-text-1);
-            font-size: 13.5px;
-            font-family: 'Inter', sans-serif;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .form-input:focus { outline: none; border-color: rgba(224,49,49,0.5); box-shadow: 0 0 0 3px rgba(224,49,49,0.1); }
-
-        /* ===== BUTTONS ===== */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 9px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            border: none;
-            letter-spacing: 0.1px;
-        }
-        .btn-primer {
-            background: linear-gradient(135deg, #c92a2a 0%, #e03131 100%);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(224,49,49,0.2);
-        }
-        .btn-primer:hover {
-            background: linear-gradient(135deg, #e03131 0%, #ff4d4f 100%);
-            box-shadow: 0 4px 18px rgba(224,49,49,0.4);
-            transform: translateY(-1px);
-        }
-        .btn-sekunder {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--c-text-1);
-        }
-        .btn-sekunder:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.16); }
-
-        /* ===== BADGES ===== */
-        .badge {
-            display: inline-block;
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-size: 9.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .badge-kritis { background: rgba(255,77,79,0.12); border: 1px solid rgba(255,77,79,0.35); color: #ff7875; }
-        .badge-tinggi { background: rgba(255,122,69,0.12); border: 1px solid rgba(255,122,69,0.35); color: #ff9c6e; }
-        .badge-sedang { background: rgba(255,197,61,0.12); border: 1px solid rgba(255,197,61,0.35); color: #ffd666; }
-        .badge-rendah { background: rgba(82,196,26,0.12);  border: 1px solid rgba(82,196,26,0.35);  color: #95de64; }
-
-        /* ===== INFO LIST ===== */
-        .info-list { list-style: none; }
-        .info-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 13px;
-        }
-        .info-list li:last-child { border-bottom: none; }
-        .info-label { color: var(--c-text-3); font-size: 12px; }
-        .info-value { font-weight: 600; color: var(--c-text-1); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
-        .grid-intelijen {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        /* ===== TICKER BAR ===== */
-        .scm-ticker-container {
-            background: rgba(6, 10, 16, 0.95);
-            border: 1px solid rgba(224,49,49,0.18);
-            border-radius: 10px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-            z-index: 10;
-            box-shadow: 0 0 20px rgba(224,49,49,0.08), 0 4px 12px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-        }
-        .scm-ticker-label {
-            background: linear-gradient(90deg, #991b1b 0%, #e03131 100%);
-            color: #fff;
-            padding: 0 14px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            font-weight: 700;
-            font-size: 9.5px;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            position: relative;
-            flex-shrink: 0;
-        }
-        .scm-ticker-label::after {
-            content: '';
-            position: absolute;
-            right: -8px;
-            top: 0; bottom: 0;
-            width: 8px;
-            background: linear-gradient(90deg, #e03131, transparent);
-        }
-        .scm-ticker-content { flex-grow: 1; display: flex; align-items: center; overflow: hidden; position: relative; height: 100%; }
-        .scm-ticker-track { display: flex; white-space: nowrap; position: absolute; animation: scm-ticker-scroll 55s linear infinite; }
-        .scm-ticker-track:hover { animation-play-state: paused; }
-        .scm-ticker-item {
-            display: flex; align-items: center;
-            padding: 0 18px;
-            color: var(--c-text-2);
-            font-size: 11px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: color 0.2s ease;
-            gap: 6px;
-        }
-        .scm-ticker-item:hover { color: var(--c-text-1); }
-        .scm-ticker-separator { color: rgba(255,77,79,0.35); margin: 0 2px; font-size: 10px; }
-
+        /* Marquee Animation */
         @keyframes scm-ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        @keyframes pulse-blink { 0% { opacity: 0.4; } 100% { opacity: 1; } }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .sidebar { width: var(--sidebar-collapsed); }
-            .sidebar-logo, .user-info-wrapper, .menu-text { opacity: 0; max-width: 0; }
-            .konten-utama { margin-left: var(--sidebar-collapsed); padding: 16px; }
-        }
+        .scm-ticker-track { display: flex; white-space: nowrap; position: absolute; animation: scm-ticker-scroll 60s linear infinite; }
+        .scm-ticker-track:hover { animation-play-state: paused; }
     </style>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#fecaca",
+                        "tertiary-fixed": "#ffb4ab",
+                        "surface-container-low": "#111c2d",
+                        "tertiary-container": "#93000a",
+                        "surface-container-highest": "#2a3548",
+                        "inverse-on-surface": "#263143",
+                        "on-primary-fixed-variant": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "surface": "#081425",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-container": "#ffdad6",
+                        "outline-variant": "#334155", /* custom border color */
+                        "secondary-container": "#3a4a5f",
+                        "on-surface-variant": "#c6c6cd",
+                        "primary-fixed-dim": "#ffb4ab",
+                        "surface-dim": "#081425",
+                        "on-primary-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#7f1d1d",
+                        "on-tertiary-fixed": "#3e0002",
+                        "background": "#081425",
+                        "on-tertiary": "#690005",
+                        "on-surface": "#d8e3fb",
+                        "error-container": "#93000a",
+                        "on-background": "#d8e3fb",
+                        "tertiary-fixed-dim": "#ff897d",
+                        "surface-container-lowest": "#040e1f",
+                        "inverse-primary": "#ffb4ab",
+                        "on-secondary-fixed": "#3b0a0a",
+                        "surface-variant": "#2a3548",
+                        "tertiary": "#ff6b5b",
+                        "surface-bright": "#2f3a4c",
+                        "on-error": "#690005",
+                        "surface-tint": "#ff4d4d",
+                        "primary-container": "#450a0a",
+                        "on-primary": "#ffffff",
+                        "primary": "#ff4d4d",
+                        "surface-container": "#152031",
+                        "secondary": "#fca5a5",
+                        "secondary-fixed": "#fee2e2",
+                        "on-tertiary-fixed-variant": "#93000a",
+                        "on-primary-fixed": "#410001",
+                        "surface-container-high": "#1f2a3c",
+                        "inverse-surface": "#d8e3fb",
+                        "primary-fixed": "#ffdad6",
+                        "outline": "#909097",
+                        "secondary-fixed-dim": "#f87171",
+                        "on-secondary": "#450a0a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "margin-desktop": "24px",
+                        "container-max": "1440px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-sm": ["JetBrains Mono"],
+                        "table-data": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "table-data": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
     @yield('gaya_tambahan')
 </head>
-<body x-data="{ sidebarOpen: true }">
-
-    <!-- Sidebar Menu -->
-    <div class="sidebar" :class="{ 'collapsed': !sidebarOpen }">
-        <div class="sidebar-header">
-            <div class="sidebar-brand">
-                <img src="{{ asset('images/Horus.png') }}" alt="Horus Icon" class="brand-icon" style="height: 24px; width: auto; margin-right: 10px;">
-                <div class="sidebar-logo">Horus</div>
-            </div>
-            <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen" :title="sidebarOpen ? 'Perkecil Panel' : 'Perluas Panel'">
-                <i class="fa-solid" :class="sidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden min-h-screen" x-data="{ sidebarOpen: true }">
+    <!-- TopNavBar -->
+    <header class="flex justify-between items-center h-16 w-full px-6 z-50 fixed top-0 bg-surface-container-low border-b border-outline-variant">
+        <div class="flex items-center gap-4">
+            <!-- Sidebar toggle button -->
+            <button class="text-on-surface-variant hover:bg-surface-container-highest p-2 rounded-lg transition-colors flex items-center justify-center" @click="sidebarOpen = !sidebarOpen">
+                <span class="material-symbols-outlined">menu</span>
             </button>
+            <div class="flex items-center gap-2">
+                <img src="{{ asset('images/Horus.png') }}" alt="Horus Icon" class="h-7 w-auto">
+                <span class="text-xl font-bold tracking-tight text-primary font-headline-lg">HORUS MONITORING</span>
+            </div>
         </div>
 
-        <ul class="sidebar-menu">
-            <li class="menu-section-label">NAVIGASI UTAMA</li>
+        <div class="flex items-center gap-4">
+            <span class="text-xs text-on-surface-variant uppercase tracking-wider hidden md:inline">SYSTEM OVERWATCH ACTIVE</span>
+            <div class="h-2 w-2 rounded-full bg-tertiary animate-pulse hidden md:inline-block"></div>
+            
+            <div class="w-px h-6 bg-outline-variant hidden md:block"></div>
+            
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-secondary-container border border-outline-variant flex items-center justify-center font-bold text-sm text-primary">
+                    {{ strtoupper(substr(Auth::user()->nama, 0, 2)) }}
+                </div>
+                <div class="hidden lg:flex flex-col text-left">
+                    <span class="text-xs font-semibold text-on-surface leading-none">{{ Auth::user()->nama }}</span>
+                    <span class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-0.5">{{ Auth::user()->peran->first()?->nama ?? 'Pengguna' }}</span>
+                </div>
+            </div>
+        </div>
+    </header>
 
-            <li class="menu-item {{ Request::routeIs('dasbor.indeks') ? 'aktif' : '' }}">
-                <a href="{{ route('dasbor.indeks') }}">
-                    <i class="fa-solid fa-earth-americas menu-icon"></i>
-                    <span class="menu-text">Control Center</span>
-                </a>
-                <div class="sidebar-tooltip">Control Center</div>
-            </li>
+    <!-- SideNavBar -->
+    <aside class="fixed left-0 top-0 h-screen flex flex-col z-40 pt-16 bg-surface-container-lowest border-r border-outline-variant sidebar-transition" 
+           :class="sidebarOpen ? 'w-64' : 'w-16'">
+        <div class="p-4 border-b border-outline-variant flex items-center justify-between" x-show="sidebarOpen" x-transition>
+            <div class="flex items-center gap-3">
+                <div class="w-2.5 h-2.5 rounded-full bg-tertiary animate-pulse"></div>
+                <div class="flex flex-col">
+                    <span class="font-label-sm text-xs font-bold text-on-surface">Terminal v2.5</span>
+                    <span class="text-[10px] text-on-surface-variant uppercase tracking-widest leading-none">Live Oversight</span>
+                </div>
+            </div>
+        </div>
 
-            <li class="menu-item {{ Request::routeIs('favorit.indeks') ? 'aktif' : '' }}">
-                <a href="{{ route('favorit.indeks') }}" style="position:relative;">
-                    <i class="fa-solid fa-star menu-icon"></i>
-                    <span class="menu-text">Pemantauan Favorit</span>
+        <!-- Navigation Menu -->
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <!-- Navigation Section -->
+            <div class="px-4 py-2" x-show="sidebarOpen" x-transition>
+                <span class="text-[10px] font-bold text-outline uppercase tracking-widest">Navigasi Utama</span>
+            </div>
+
+            <!-- Dashboard Link -->
+            <a class="flex items-center gap-3 px-4 py-3 text-sm transition-all hover:bg-surface-container-high {{ Request::routeIs('dasbor.indeks') ? 'bg-secondary-container text-on-secondary-container border-l-4 border-tertiary font-bold' : 'text-on-surface-variant hover:text-on-surface' }}" 
+               href="{{ route('dasbor.indeks') }}" title="Control Center">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-label-sm text-xs" x-show="sidebarOpen" x-transition>Control Center</span>
+            </a>
+
+            <!-- Watchlist Link -->
+            <a class="flex items-center gap-3 px-4 py-3 text-sm transition-all hover:bg-surface-container-high {{ Request::routeIs('favorit.indeks') ? 'bg-secondary-container text-on-secondary-container border-l-4 border-tertiary font-bold' : 'text-on-surface-variant hover:text-on-surface' }}" 
+               href="{{ route('favorit.indeks') }}" title="Pemantauan Favorit">
+                <span class="material-symbols-outlined">star</span>
+                <div class="flex items-center justify-between w-full" x-show="sidebarOpen" x-transition>
+                    <span class="font-label-sm text-xs">Pemantauan Favorit</span>
                     @php
                         $jmlFavorit = Auth::user()->favoritNegara()->count();
                     @endphp
                     @if($jmlFavorit > 0)
-                    <span id="sidebar-favorit-count" style="margin-left:auto;background:#991b1b;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center;">{{ $jmlFavorit }}</span>
+                    <span class="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-0.5 rounded-full" id="sidebar-favorit-count">
+                        {{ $jmlFavorit }}
+                    </span>
                     @endif
-                </a>
-                <div class="sidebar-tooltip">Favorit ({{ Auth::user()->favoritNegara()->count() }})</div>
-            </li>
+                </div>
+            </a>
 
-            <li class="menu-item {{ Request::routeIs('komparasi.indeks') ? 'aktif' : '' }}">
-                <a href="{{ route('komparasi.indeks') }}">
-                    <i class="fa-solid fa-scale-balanced menu-icon"></i>
-                    <span class="menu-text">Komparasi Negara</span>
-                </a>
-                <div class="sidebar-tooltip">Komparasi Negara</div>
-            </li>
+            <!-- Komparasi Link -->
+            <a class="flex items-center gap-3 px-4 py-3 text-sm transition-all hover:bg-surface-container-high {{ Request::routeIs('komparasi.indeks') ? 'bg-secondary-container text-on-secondary-container border-l-4 border-tertiary font-bold' : 'text-on-surface-variant hover:text-on-surface' }}" 
+               href="{{ route('komparasi.indeks') }}" title="Komparasi Negara">
+                <span class="material-symbols-outlined">compare_arrows</span>
+                <span class="font-label-sm text-xs" x-show="sidebarOpen" x-transition>Komparasi Negara</span>
+            </a>
 
-            <div class="menu-divider"></div>
-            <li class="menu-section-label">MANAJEMEN RISIKO</li>
+            <div class="h-px bg-outline-variant my-2 mx-4"></div>
 
-            <li class="menu-item {{ Request::routeIs('risiko.rekomendasi.indeks') ? 'aktif' : '' }}">
-                <a href="{{ route('risiko.rekomendasi.indeks') }}">
-                    <i class="fa-solid fa-hand-holding-hand menu-icon"></i>
-                    <span class="menu-text">Tindakan Mitigasi</span>
-                </a>
-                <div class="sidebar-tooltip">Tindakan Mitigasi</div>
-            </li>
-
-            @if(Auth::user()->adalahSuperAdmin() || Auth::user()->mempunyaiPeran('administrator'))
-            <li class="menu-item {{ Request::routeIs('risiko.bobot.form') ? 'aktif' : '' }}">
-                <a href="{{ route('risiko.bobot.form') }}">
-                    <i class="fa-solid fa-sliders menu-icon"></i>
-                    <span class="menu-text">Bobot Risiko</span>
-                </a>
-                <div class="sidebar-tooltip">Bobot Risiko</div>
-            </li>
-            @endif
-
-            <div class="menu-divider"></div>
-            <li class="menu-section-label">INTELIJEN BERITA</li>
-
-            <li class="menu-item {{ Request::routeIs('analisis.*') ? 'aktif' : '' }}">
-                <a href="{{ route('analisis.indeks') }}">
-                    <i class="fa-solid fa-newspaper menu-icon"></i>
-                    <span class="menu-text">Analisis Artikel</span>
-                </a>
-                <div class="sidebar-tooltip">Analisis Artikel</div>
-            </li>
-
-            @if(Auth::user()->adalahSuperAdmin() || Auth::user()->adalahAdmin())
-            <div class="menu-divider"></div>
-            <li class="menu-section-label">ADMINISTRASI</li>
-
-            <li class="menu-item {{ Request::routeIs('admin.pengguna.*') ? 'aktif' : '' }}">
-                <a href="{{ route('admin.pengguna.indeks') }}">
-                    <i class="fa-solid fa-users-gear menu-icon"></i>
-                    <span class="menu-text">Kelola Pengguna</span>
-                </a>
-                <div class="sidebar-tooltip">Kelola Pengguna</div>
-            </li>
-            @endif
-        </ul>
-
-        <div class="sidebar-footer">
-            <div class="user-avatar">{{ strtoupper(substr(Auth::user()->nama, 0, 2)) }}</div>
-            <div class="user-info-wrapper">
-                <div class="user-name">{{ Auth::user()->nama }}</div>
-                <div class="user-role">{{ Auth::user()->peran->first()?->nama ?? 'Pengguna' }}</div>
+            <!-- SCM Risks Section -->
+            <div class="px-4 py-2" x-show="sidebarOpen" x-transition>
+                <span class="text-[10px] font-bold text-outline uppercase tracking-widest">Manajemen Risiko</span>
             </div>
-            <form action="{{ route('keluar') }}" method="POST" id="logout-form">
+
+            <!-- Mitigasi Link -->
+            <a class="flex items-center gap-3 px-4 py-3 text-sm transition-all hover:bg-surface-container-high {{ Request::routeIs('risiko.rekomendasi.indeks') ? 'bg-secondary-container text-on-secondary-container border-l-4 border-tertiary font-bold' : 'text-on-surface-variant hover:text-on-surface' }}" 
+               href="{{ route('risiko.rekomendasi.indeks') }}" title="Tindakan Mitigasi">
+                <span class="material-symbols-outlined">shield</span>
+                <span class="font-label-sm text-xs" x-show="sidebarOpen" x-transition>Tindakan Mitigasi</span>
+            </a>
+
+            <!-- Bobot Risiko (Admin Only) -->
+            @if(Auth::user()->adalahSuperAdmin() || Auth::user()->mempunyaiPeran('administrator'))
+            <a class="flex items-center gap-3 px-4 py-3 text-sm transition-all hover:bg-surface-container-high {{ Request::routeIs('risiko.bobot.form') ? 'bg-secondary-container text-on-secondary-container border-l-4 border-tertiary font-bold' : 'text-on-surface-variant hover:text-on-surface' }}" 
+               href="{{ route('risiko.bobot.form') }}" title="Bobot Risiko">
+                <span class="material-symbols-outlined">tune</span>
+                <span class="font-label-sm text-xs" x-show="sidebarOpen" x-transition>Bobot Risiko</span>
+            </a>
+            @endif
+
+            <div class="h-px bg-outline-variant my-2 mx-4"></div>
+
+            <!-- Intelligence Section -->
+            <div class="px-4 py-2" x-show="sidebarOpen" x-transition>
+                <span class="text-[10px] font-bold text-outline uppercase tracking-widest">Intelijen Berita</span>
+            </div>
+
+            <!-- Artikel Link -->
+            <a class="flex items-center gap-3 px-4 py-3 text-sm transition-all hover:bg-surface-container-high {{ Request::routeIs('analisis.*') ? 'bg-secondary-container text-on-secondary-container border-l-4 border-tertiary font-bold' : 'text-on-surface-variant hover:text-on-surface' }}" 
+               href="{{ route('analisis.indeks') }}" title="Analisis Artikel">
+                <span class="material-symbols-outlined">newspaper</span>
+                <span class="font-label-sm text-xs" x-show="sidebarOpen" x-transition>Analisis Artikel</span>
+            </a>
+
+            <!-- Administration Section (Admin Only) -->
+            @if(Auth::user()->adalahSuperAdmin() || Auth::user()->adalahAdmin())
+            <div class="h-px bg-outline-variant my-2 mx-4"></div>
+            <div class="px-4 py-2" x-show="sidebarOpen" x-transition>
+                <span class="text-[10px] font-bold text-outline uppercase tracking-widest">Administrasi</span>
+            </div>
+
+            <!-- Kelola Pengguna Link -->
+            <a class="flex items-center gap-3 px-4 py-3 text-sm transition-all hover:bg-surface-container-high {{ Request::routeIs('admin.pengguna.*') ? 'bg-secondary-container text-on-secondary-container border-l-4 border-tertiary font-bold' : 'text-on-surface-variant hover:text-on-surface' }}" 
+               href="{{ route('admin.pengguna.indeks') }}" title="Kelola Pengguna">
+                <span class="material-symbols-outlined">manage_accounts</span>
+                <span class="font-label-sm text-xs" x-show="sidebarOpen" x-transition>Kelola Pengguna</span>
+            </a>
+            @endif
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="p-4 border-t border-outline-variant flex flex-col gap-2">
+            <form action="{{ route('keluar') }}" method="POST" id="logout-form" class="w-full">
                 @csrf
-                <button type="submit" class="logout-btn" title="Keluar dari sistem">
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                <button type="submit" class="flex items-center gap-3 px-4 py-2 w-full text-left text-sm text-on-surface-variant hover:text-error hover:bg-surface-container-high transition-colors rounded">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="font-label-sm text-xs" x-show="sidebarOpen" x-transition>Sign Out</span>
                 </button>
             </form>
         </div>
-    </div>
+    </aside>
 
-    <!-- Konten Utama -->
-    <div class="konten-utama" :class="{ 'expanded': !sidebarOpen }">
+    <!-- Main Content Canvas -->
+    <main class="pt-20 p-6 min-h-screen relative flex flex-col main-transition" 
+          :class="sidebarOpen ? 'ml-64' : 'ml-16'">
         
-        <!-- Marquee Berita Panas Global -->
+        <!-- Live SCM Alert Marquee Ticker -->
         @php
             $beritaPanas = \App\Models\ArtikelBerita::with('negara')
                 ->whereIn('keparahan', ['kritis', 'tinggi'])
@@ -664,63 +301,90 @@
                 ->get();
         @endphp
         @if($beritaPanas->count() > 0)
-        <div class="scm-ticker-container">
-            <div class="scm-ticker-label">
-                <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px; animation: pulse-blink 0.8s infinite alternate;"></i> Live SCM Alert
+        <div class="relative overflow-hidden h-9 bg-surface-container-lowest border border-outline-variant rounded-lg flex items-center shadow-lg mb-6 z-10">
+            <div class="bg-error-container text-on-error-container px-4 h-full flex items-center font-bold text-xs uppercase tracking-wider relative flex-shrink-0 z-20 shadow-md">
+                <span class="material-symbols-outlined text-sm mr-1.5 animate-pulse">warning</span>
+                Live Alert
             </div>
-            <div class="scm-ticker-content">
-                <div class="scm-ticker-track">
+            <div class="flex-grow overflow-hidden relative h-full flex items-center z-10">
+                <div class="scm-ticker-track flex items-center">
                     @foreach($beritaPanas as $b)
-                        <a href="{{ $b->url_asli ?? $b->tautan ?? '#' }}" target="_blank" class="scm-ticker-item">
+                        <a href="{{ $b->url_asli ?? $b->tautan ?? '#' }}" target="_blank" class="flex items-center gap-2 px-6 text-xs text-on-surface-variant hover:text-primary transition-colors">
                             @if($b->negara)
-                                <img src="{{ $b->negara->bendera_url }}" style="height: 10px; width: 15px; border-radius: 1px; margin-right: 6px; object-fit: cover; border: 1px solid rgba(255,255,255,0.15);">
+                                <img src="{{ $b->negara->bendera_url }}" class="h-3 w-4.5 rounded object-cover border border-outline-variant">
                             @endif
-                            <span class="badge badge-{{ $b->keparahan }}" style="margin-right: 8px; font-size: 8px; padding: 1px 3px;">{{ $b->keparahan }}</span>
-                            <span>{{ $b->judul }}</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase {{ $b->keparahan == 'kritis' ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30' }}">
+                                {{ $b->keparahan }}
+                            </span>
+                            <span class="font-medium truncate max-w-sm">{{ $b->judul }}</span>
                         </a>
-                        <span class="scm-ticker-separator">•</span>
+                        <span class="text-outline-variant font-bold text-sm">•</span>
                     @endforeach
-                    <!-- Duplikasi untuk seamless loop -->
+                    <!-- Duplicate for seamless looping -->
                     @foreach($beritaPanas as $b)
-                        <a href="{{ $b->url_asli ?? $b->tautan ?? '#' }}" target="_blank" class="scm-ticker-item">
+                        <a href="{{ $b->url_asli ?? $b->tautan ?? '#' }}" target="_blank" class="flex items-center gap-2 px-6 text-xs text-on-surface-variant hover:text-primary transition-colors">
                             @if($b->negara)
-                                <img src="{{ $b->negara->bendera_url }}" style="height: 10px; width: 15px; border-radius: 1px; margin-right: 6px; object-fit: cover; border: 1px solid rgba(255,255,255,0.15);">
+                                <img src="{{ $b->negara->bendera_url }}" class="h-3 w-4.5 rounded object-cover border border-outline-variant">
                             @endif
-                            <span class="badge badge-{{ $b->keparahan }}" style="margin-right: 8px; font-size: 8px; padding: 1px 3px;">{{ $b->keparahan }}</span>
-                            <span>{{ $b->judul }}</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase {{ $b->keparahan == 'kritis' ? 'bg-red-500/20 text-red-300 border border-red-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30' }}">
+                                {{ $b->keparahan }}
+                            </span>
+                            <span class="font-medium truncate max-w-sm">{{ $b->judul }}</span>
                         </a>
-                        <span class="scm-ticker-separator">•</span>
+                        <span class="text-outline-variant font-bold text-sm">•</span>
                     @endforeach
                 </div>
             </div>
         </div>
         @endif
 
-        <div class="header-konten">
-            <h1 class="judul-halaman">@yield('judul')</h1>
-            <div style="font-size: 13px; color: var(--warna-teks-abu); display: flex; align-items: center; gap: 8px;">
-                <i class="fa-regular fa-calendar-days"></i> {{ date('d M Y') }}
-            </div>
-        </div>
-
-        <!-- Tampilan Pesan Sukses / Gagal -->
+        <!-- Session Flash Alerts -->
         @if(session('sukses'))
-            <div class="alert alert-sukses">
-                <i class="fa-solid fa-circle-check"></i>
-                <span>{{ session('sukses') }}</span>
+            <div class="mb-5 p-4 bg-tertiary-container text-on-tertiary-container border-l-4 border-tertiary rounded flex items-center gap-3">
+                <span class="material-symbols-outlined text-tertiary">check_circle</span>
+                <span class="text-sm font-medium">{{ session('sukses') }}</span>
             </div>
         @endif
 
         @if(session('error'))
-            <div class="alert alert-error">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                <span>{{ session('error') }}</span>
+            <div class="mb-5 p-4 bg-error-container text-on-error-container border-l-4 border-red-500 rounded flex items-center gap-3">
+                <span class="material-symbols-outlined text-red-400">error</span>
+                <span class="text-sm font-medium">{{ session('error') }}</span>
             </div>
         @endif
 
-        @yield('konten')
-    </div>
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 border-b border-outline-variant pb-4">
+            <div>
+                <h1 class="text-headline-lg font-bold text-on-surface">@yield('judul')</h1>
+                <p class="text-on-surface-variant text-xs mt-1">Platform Pemantauan & Analitik Risiko Rantai Pasok Global</p>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-on-surface-variant bg-surface-container-high border border-outline-variant px-3 py-1.5 rounded">
+                <span class="material-symbols-outlined text-sm">calendar_month</span>
+                <span>{{ date('d M Y') }}</span>
+            </div>
+        </div>
 
+        <!-- Main Content Area -->
+        <div class="flex-grow z-10">
+            @yield('konten')
+        </div>
+    </main>
+
+    <!-- Hover Micro-interactions -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.glass-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.classList.add('border-outline');
+                    card.style.transition = 'all 0.2s ease';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.classList.remove('border-outline');
+                });
+            });
+        });
+    </script>
     @yield('skrip_tambahan')
 </body>
 </html>

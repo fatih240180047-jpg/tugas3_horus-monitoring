@@ -1,552 +1,558 @@
 @extends('layouts.aplikasi')
 
 @section('judul')
-    <div style="display: flex; align-items: center; gap: 12px;">
-        <img src="{{ $negara->bendera_url }}" style="height: 24px; width: 36px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15);" alt="{{ $negara->nama }} Flag">
-        <span>Intelijen Negara: {{ $negara->nama }}</span>
-    </div>
-@endsection
-
-@section('gaya_tambahan')
-<style>
-    .grid-intelijen {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 24px;
-        margin-bottom: 32px;
-    }
-
-    .info-list {
-        list-style: none;
-    }
-
-    .info-list li {
-        display: flex;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--warna-charcoal-border);
-        font-size: 14px;
-    }
-
-    .info-list li:last-child {
-        border-bottom: none;
-    }
-
-    .info-label {
-        color: var(--warna-teks-abu);
-        font-weight: 500;
-    }
-
-    .info-value {
-        font-weight: 600;
-        color: var(--warna-teks-putih);
-    }
-
-    .panel-risiko-utama {
-        display: flex;
-        align-items: center;
-        gap: 32px;
-        background-color: var(--warna-kaca);
-        border: 1px solid var(--warna-charcoal-border);
-        padding: 32px;
-        border-radius: 12px;
-        margin-bottom: 32px;
-    }
-
-    .lingkaran-skor {
-        width: 140px;
-        height: 140px;
-        border-radius: 50%;
-        border: 8px solid var(--warna-charcoal-border);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        font-family: 'Outfit', sans-serif;
-    }
-
-    .lingkaran-skor .skor {
-        font-size: 40px;
-        font-weight: 800;
-    }
-
-    .lingkaran-skor .skor-label {
-        font-size: 11px;
-        color: var(--warna-teks-abu);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .risiko-deskripsi {
-        flex-grow: 1;
-    }
-
-    .risiko-deskripsi h2 {
-        font-family: 'Outfit', sans-serif;
-        font-size: 24px;
-        margin-bottom: 8px;
-    }
-
-    .risiko-deskripsi p {
-        color: var(--warna-teks-abu);
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    .tabel-data {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .tabel-data th, .tabel-data td {
-        padding: 12px 16px;
-        text-align: left;
-        border-bottom: 1px solid var(--warna-charcoal-border);
-        font-size: 14px;
-    }
-
-    .tabel-data th {
-        color: var(--warna-teks-abu);
-        font-weight: 600;
-    }
-
-    .tabel-data tr:hover {
-        background-color: rgba(255, 255, 255, 0.01);
-    }
-</style>
+<div class="flex items-center gap-3">
+    <img src="{{ $negara->bendera_url }}" class="h-6 w-9 object-cover rounded border border-outline-variant shadow-md" alt="{{ $negara->nama }} Flag">
+    <span class="font-headline-md text-base font-extrabold text-on-surface">Intelijen SCM: {{ $negara->nama }}</span>
+</div>
 @endsection
 
 @section('konten')
+<div class="space-y-6">
 
-<!-- Panel Skor Risiko Utama -->
-<div class="panel-risiko-utama" style="border-left: 8px solid 
-    @if($risikoTerkini)
-        @if($risikoTerkini->level_risiko === 'Kritis') #dc2626
-        @elseif($risikoTerkini->level_risiko === 'Tinggi') #f97316
-        @elseif($risikoTerkini->level_risiko === 'Sedang') #eab308
-        @else #16a34a
-        @endif
-    @else var(--warna-charcoal-border)
-    @endif
-;">
-    <div class="lingkaran-skor" style="border-color: 
-        @if($risikoTerkini)
-            @if($risikoTerkini->level_risiko === 'Kritis') #dc2626
-            @elseif($risikoTerkini->level_risiko === 'Tinggi') #f97316
-            @elseif($risikoTerkini->level_risiko === 'Sedang') #eab308
-            @else #16a34a
-            @endif
-        @else var(--warna-charcoal-border)
-        @endif
-    ;">
-        <span class="skor">{{ $risikoTerkini?->skor_total ?? 'N/A' }}</span>
-        <span class="skor-label">Skor Risiko</span>
-    </div>
-    <div class="risiko-deskripsi">
-        <h2>Tingkat Risiko: {{ $risikoTerkini?->level_risiko ?? 'Belum Dinilai' }}</h2>
-        <div style="margin-bottom: 12px;">
-            @if($risikoTerkini)
-                @foreach($risikoTerkini->penjelasan as $bukti)
-                    <p style="margin-bottom: 4px; font-size: 13px;"><i class="fa-solid fa-circle-info" style="color: var(--warna-merah-terang); margin-right: 6px;"></i> {{ $bukti }}</p>
-                @endforeach
-            @else
-                <p>Silakan klik tombol "Sinkronkan & Kalkulasi" untuk memuat data intelijen dan menghitung indeks risiko negara ini.</p>
-            @endif
-        </div>
-        <p style="font-size: 12px;">Pembaruan Terakhir: {{ $risikoTerkini ? date('d M Y H:i', strtotime($risikoTerkini->dihitung_pada)) : 'Belum Pernah' }}</p>
-    </div>
-    <div>
-        @if(Auth::user()->adalahSuperAdmin() || Auth::user()->mempunyaiPeran('admin') || Auth::user()->mempunyaiPeran('analis'))
-            <form action="{{ route('negara.sinkronkan', $negara->kode_iso) }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-primer">
-                    <i class="fa-solid fa-arrows-rotate"></i> Sinkronkan & Kalkulasi
-                </button>
-            </form>
-        @endif
-    </div>
-</div>
-
-<!-- Grid Analisis Parameter Intelijen -->
-<div class="grid-intelijen">
-    
-    <!-- Parameter 1: Cuaca 7 Hari + Insight SCM -->
-    <div class="card-panel">
-        <h2 class="card-panel-title">
-            <i class="fa-solid fa-cloud-sun" style="color: #60a5fa;"></i> Intelijen Cuaca & Prakiraan 7 Hari
-            <span style="font-size: 11px; color: var(--warna-teks-abu); margin-left: 8px; font-weight: 400;">via Open-Meteo</span>
-        </h2>
-
-        {{-- Cuaca Hari Ini --}}
-        @if($cuacaTerkini)
-        <ul class="info-list" style="margin-bottom: 16px;">
-            <li>
-                <span class="info-label">Suhu Saat Ini</span>
-                <span class="info-value">{{ $cuacaTerkini->suhu ?? 'N/A' }} °C
-                    @if($cuacaTerkini->suhu_min && $cuacaTerkini->suhu_max)
-                    <span style="font-size: 11px; color: var(--warna-teks-abu);">({{ $cuacaTerkini->suhu_min }}° – {{ $cuacaTerkini->suhu_max }}°)</span>
+    <!-- Top Info & Risk Overview Header -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- Risk Badge Bento Card -->
+        <div class="lg:col-span-8 bg-surface-container-low border border-outline-variant rounded-xl p-6 flex flex-col md:flex-row items-center gap-6 shadow-xl relative overflow-hidden">
+            <!-- Glow background effect based on risk -->
+            <div class="absolute top-0 left-0 w-2 h-full 
+                @if($risikoTerkini)
+                    @if($risikoTerkini->level_risiko === 'Kritis') bg-error
+                    @elseif($risikoTerkini->level_risiko === 'Tinggi') bg-orange-500
+                    @elseif($risikoTerkini->level_risiko === 'Sedang') bg-amber-500
+                    @else bg-emerald-500
                     @endif
-                </span>
-            </li>
-            <li>
-                <span class="info-label">Kondisi Cuaca</span>
-                <span class="info-value">{{ ucfirst($cuacaTerkini->kondisi_cuaca ?? 'N/A') }}</span>
-            </li>
-            <li>
-                <span class="info-label">Curah Hujan</span>
-                <span class="info-value">{{ $cuacaTerkini->curah_hujan ?? 'N/A' }} mm</span>
-            </li>
-            <li>
-                <span class="info-label">Kecepatan Angin</span>
-                <span class="info-value">{{ $cuacaTerkini->kecepatan_angin ?? 'N/A' }} km/jam</span>
-            </li>
-        </ul>
+                @else bg-outline-variant
+                @endif
+            "></div>
 
-        {{-- Prakiraan 7 Hari - Mini Cards --}}
-        @if($prakiraan7Hari->count() > 1)
-        <div style="font-size: 11px; color: var(--warna-teks-abu); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Prakiraan 7 Hari ke Depan</div>
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px;">
-            @foreach($prakiraan7Hari->take(7) as $hari)
-            <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--warna-charcoal-border); border-radius: 8px; padding: 8px 4px; text-align: center;">
-                <div style="font-size: 10px; color: var(--warna-teks-abu);">{{ date('D', strtotime($hari->tanggal_observasi)) }}</div>
-                <div style="font-size: 11px; font-weight: 700; color: var(--warna-teks-putih); margin: 4px 0;">{{ $hari->suhu_max ?? $hari->suhu ?? '--' }}°</div>
-                <div style="font-size: 9px; color: #60a5fa;">{{ $hari->suhu_min ?? '--' }}°</div>
+            <div class="flex-shrink-0 flex flex-col items-center justify-center w-36 h-36 rounded-full border-4 font-headline-lg relative 
+                @if($risikoTerkini)
+                    @if($risikoTerkini->level_risiko === 'Kritis') border-error/30 text-error
+                    @elseif($risikoTerkini->level_risiko === 'Tinggi') border-orange-500/30 text-orange-400
+                    @elseif($risikoTerkini->level_risiko === 'Sedang') border-amber-500/30 text-amber-400
+                    @else border-emerald-500/30 text-emerald-400
+                    @endif
+                @else border-outline-variant text-on-surface-variant
+                @endif
+            ">
+                <span class="text-4xl font-extrabold font-label-sm leading-none">{{ $risikoTerkini?->skor_total ?? 'N/A' }}</span>
+                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider mt-1.5 font-bold">Skor Risiko</span>
             </div>
-            @endforeach
-        </div>
-        @endif
 
-        {{-- Insight SCM Cuaca --}}
-        @if($cuacaTerkini->insight_scm)
-        <div style="background: rgba(96, 165, 250, 0.08); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 8px; padding: 12px;">
-            <div style="font-size: 11px; color: #60a5fa; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
-                <i class="fa-solid fa-lightbulb"></i> Analisis Dampak SCM
-            </div>
-            <div style="font-size: 12px; color: var(--warna-teks-abu); line-height: 1.6; white-space: pre-line;">{{ $cuacaTerkini->insight_scm }}</div>
-        </div>
-        @endif
-        @else
-        <p style="color: var(--warna-teks-abu); font-size: 13px; text-align: center; padding: 24px;">Belum ada data cuaca. Klik "Sinkronkan & Kalkulasi" untuk mengambil data cuaca real-time.</p>
-        @endif
-    </div>
-
-    <!-- Parameter 2: Makroekonomi -->
-    <div class="card-panel">
-        <h2 class="card-panel-title">
-            <i class="fa-solid fa-chart-line" style="color: #34d399;"></i> Indikator Ekonomi
-            <span style="font-size: 11px; color: var(--warna-teks-abu); margin-left: 8px; font-weight: 400;">via World Bank</span>
-        </h2>
-        <ul class="info-list">
-            <li>
-                <span class="info-label">Produk Domestik Bruto (PDB)</span>
-                <span class="info-value">
-                    {{ $ekonomiTerkini && $ekonomiTerkini->pdb ? '$' . number_format($ekonomiTerkini->pdb / 1_000_000_000, 2) . ' Milyar' : 'N/A' }}
-                </span>
-            </li>
-            <li>
-                <span class="info-label">Tingkat Inflasi</span>
-                <span class="info-value" style="color: {{ ($ekonomiTerkini?->tingkat_inflasi ?? 0) > 5 ? '#f87171' : 'var(--warna-teks-putih)' }};">
-                    {{ $ekonomiTerkini ? $ekonomiTerkini->tingkat_inflasi . ' %' : 'N/A' }}
-                </span>
-            </li>
-            <li>
-                <span class="info-label">Tingkat Pengangguran</span>
-                <span class="info-value">{{ $ekonomiTerkini ? $ekonomiTerkini->tingkat_pengangguran . ' %' : 'N/A' }}</span>
-            </li>
-            <li>
-                <span class="info-label">Tingkat Bunga Riil</span>
-                <span class="info-value">{{ $ekonomiTerkini ? $ekonomiTerkini->tingkat_bunga . ' %' : 'N/A' }}</span>
-            </li>
-            <li>
-                <span class="info-label">Neraca Perdagangan</span>
-                <span class="info-value">
-                    {{ $ekonomiTerkini && $ekonomiTerkini->neraca_perdagangan ? '$' . number_format($ekonomiTerkini->neraca_perdagangan / 1_000_000, 2) . ' Juta' : 'N/A' }}
-                </span>
-            </li>
-        </ul>
-    </div>
-
-    <!-- Parameter 3: Keuangan / Forex + Insight SCM -->
-    <div class="card-panel">
-        <h2 class="card-panel-title">
-            <i class="fa-solid fa-coins" style="color: #fbbf24;"></i> Nilai Tukar Valuta Asing
-            <span style="font-size: 11px; color: var(--warna-teks-abu); margin-left: 8px; font-weight: 400;">via open.er-api.com</span>
-        </h2>
-        <ul class="info-list">
-            @forelse($nilaiTukarList as $forex)
-                <li>
-                    <span class="info-label">{{ $forex->kode_mata_uang }} / USD</span>
-                    <span class="info-value" style="font-family: 'Outfit';">{{ number_format($forex->nilai_tukar, 4) }}</span>
-                </li>
-            @empty
-                <li style="text-align: center; color: var(--warna-teks-abu);">Belum ada riwayat forex.</li>
-            @endforelse
-        </ul>
-
-        {{-- Insight SCM Nilai Tukar --}}
-        @if($nilaiTukarTerkini?->insight_scm)
-        <div style="background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px; padding: 12px; margin-top: 12px;">
-            <div style="font-size: 11px; color: #fbbf24; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
-                <i class="fa-solid fa-lightbulb"></i> Analisis Fluktuasi SCM
-            </div>
-            <div style="font-size: 12px; color: var(--warna-teks-abu); line-height: 1.6;">{{ $nilaiTukarTerkini->insight_scm }}</div>
-        </div>
-        @endif
-    </div>
-
-</div>
-
-<!-- Feed Berita Relevan Negara + Dampak SCM -->
-<div class="card-panel">
-    <h2 class="card-panel-title">
-        <i class="fa-solid fa-newspaper"></i> Umpan Berita & Sentimen Geopolitik
-        <span style="font-size: 11px; color: var(--warna-teks-abu); margin-left: 8px; font-weight: 400;">via GNews API / NewsAPI</span>
-    </h2>
-    @forelse($beritaList as $art)
-    <div style="border-bottom: 1px solid var(--warna-charcoal-border); padding: 20px 0;">
-        {{-- Header berita --}}
-        <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px;">
-            <div style="flex-grow: 1;">
-                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap;">
-                    <span class="badge badge-{{ $art->keparahan === 'kritis' || $art->keparahan === 'tinggi' ? 'kritis' : ($art->keparahan === 'sedang' ? 'sedang' : 'rendah') }}">
-                        {{ $art->keparahan }}
-                    </span>
-                    <span style="font-size: 11px; color: {{ $art->sentimen === 'negatif' ? '#f87171' : ($art->sentimen === 'positif' ? '#4ade80' : 'var(--warna-teks-abu)') }}; font-weight: 600;">
-                        <i class="fa-solid {{ $art->sentimen === 'negatif' ? 'fa-thumbs-down' : ($art->sentimen === 'positif' ? 'fa-thumbs-up' : 'fa-hand') }}"></i>
-                        {{ ucfirst($art->sentimen) }}
-                    </span>
-                    <span style="font-size: 11px; color: var(--warna-teks-abu);">{{ $art->sumber ?? 'Unknown Source' }}</span>
-                    <span style="font-size: 11px; color: var(--warna-teks-abu);">{{ date('d M Y H:i', strtotime($art->diterbitkan_pada)) }}</span>
+            <div class="flex-grow space-y-2 text-center md:text-left">
+                <div class="text-[11px] text-on-surface-variant font-extrabold uppercase tracking-wider">Tingkat Risiko Terkini</div>
+                <h2 class="text-2xl font-black text-on-surface leading-tight">
+                    Tingkat Risiko: 
+                    <span class="
+                        @if($risikoTerkini)
+                            @if($risikoTerkini->level_risiko === 'Kritis') text-error
+                            @elseif($risikoTerkini->level_risiko === 'Tinggi') text-orange-400
+                            @elseif($risikoTerkini->level_risiko === 'Sedang') text-amber-400
+                            @else text-emerald-400
+                            @endif
+                        @else text-on-surface-variant
+                        @endif
+                    ">{{ $risikoTerkini?->level_risiko ?? 'Belum Dinilai' }}</span>
+                </h2>
+                
+                <div class="space-y-1.5 py-1">
+                    @if($risikoTerkini)
+                        @foreach($risikoTerkini->penjelasan as $bukti)
+                            <div class="text-xs text-on-surface-variant flex items-center justify-center md:justify-start gap-2">
+                                <span class="material-symbols-outlined text-[14px] text-error flex-shrink-0">info</span>
+                                <span>{{ $bukti }}</span>
+                            </div>
+                        @endforeach
+                    @else
+                        <p class="text-xs text-outline italic">Silakan klik tombol "Sinkronkan &amp; Kalkulasi" di sebelah kanan untuk memuat data intelijen dan menghitung indeks risiko negara ini.</p>
+                    @endif
                 </div>
 
-                @if($art->url_asli)
-                <a href="{{ $art->url_asli }}" target="_blank" rel="noopener"
-                   style="font-size: 15px; font-weight: 600; color: var(--warna-teks-putih); text-decoration: none; line-height: 1.4; transition: color 0.2s;">
-                    {{ $art->judul }}
-                    <i class="fa-solid fa-external-link" style="font-size: 11px; margin-left: 4px; opacity: 0.5;"></i>
-                </a>
-                @else
-                <span style="font-size: 15px; font-weight: 600; color: var(--warna-teks-putih);">{{ $art->judul }}</span>
+                <div class="text-[10px] text-outline pt-1">
+                    Pembaruan Terakhir: {{ $risikoTerkini ? date('d M Y H:i', strtotime($risikoTerkini->dihitung_pada)) : 'Belum Pernah' }}
+                </div>
+            </div>
+
+            <div class="flex-shrink-0 mt-4 md:mt-0">
+                @if(Auth::user()->adalahSuperAdmin() || Auth::user()->mempunyaiPeran('admin') || Auth::user()->mempunyaiPeran('analis'))
+                    <form action="{{ route('negara.sinkronkan', $negara->kode_iso) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 bg-primary hover:opacity-90 text-on-primary font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-lg shadow-lg transition-all">
+                            <span class="material-symbols-outlined text-[16px] animate-spin-slow">sync</span>
+                            Sinkronkan &amp; Kalkulasi
+                        </button>
+                    </form>
                 @endif
             </div>
         </div>
 
-        {{-- Ringkasan --}}
-        @if($art->ringkasan)
-        <p style="font-size: 13px; color: var(--warna-teks-abu); line-height: 1.6; margin-bottom: 10px;">
-            {{ Str::limit($art->ringkasan, 250) }}
-        </p>
-        @endif
-
-        {{-- Dampak SCM --}}
-        @if($art->dampak_scm)
-        <div style="background: rgba(239, 68, 68, 0.07); border-left: 3px solid #991b1b; border-radius: 0 6px 6px 0; padding: 10px 14px;">
-            <div style="font-size: 10px; color: var(--warna-merah-terang); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
-                <i class="fa-solid fa-shield-halved"></i> Dampak SCM
+        <!-- Country Metadata Card -->
+        <div class="lg:col-span-4 bg-surface-container-low border border-outline-variant rounded-xl p-6 flex flex-col justify-between shadow-xl">
+            <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider mb-4 border-b border-outline-variant/30 pb-2">Informasi Profil Hub</h3>
+            <div class="space-y-3 text-xs">
+                <div class="flex justify-between border-b border-outline-variant/10 pb-2">
+                    <span class="text-on-surface-variant">Ibu Kota</span>
+                    <strong class="text-on-surface font-semibold">{{ $negara->ibu_kota ?? 'N/A' }}</strong>
+                </div>
+                <div class="flex justify-between border-b border-outline-variant/10 pb-2">
+                    <span class="text-on-surface-variant">Kawasan</span>
+                    <strong class="text-on-surface font-semibold">{{ $negara->kawasan ?? 'N/A' }}</strong>
+                </div>
+                <div class="flex justify-between border-b border-outline-variant/10 pb-2">
+                    <span class="text-on-surface-variant">Sub-Kawasan</span>
+                    <strong class="text-on-surface font-semibold">{{ $negara->sub_kawasan ?? 'N/A' }}</strong>
+                </div>
+                <div class="flex justify-between border-b border-outline-variant/10 pb-2">
+                    <span class="text-on-surface-variant">Populasi</span>
+                    <strong class="text-on-surface font-semibold">{{ $negara->populasi ? number_format($negara->populasi, 0, ',', '.') : 'N/A' }}</strong>
+                </div>
+                <div class="flex justify-between pb-1">
+                    <span class="text-on-surface-variant">Koordinat Utama</span>
+                    <strong class="text-on-surface font-semibold">{{ $negara->lintang ?? '0' }}, {{ $negara->bujur ?? '0' }}</strong>
+                </div>
             </div>
-            <div style="font-size: 12px; color: var(--warna-teks-abu); line-height: 1.5; white-space: pre-line;">{{ $art->dampak_scm }}</div>
         </div>
-        @endif
-    </div>
-    @empty
-    <p style="padding: 24px; color: var(--warna-teks-abu); text-align: center;">
-        Belum ada berita yang disinkronkan untuk negara ini. Klik "Sinkronkan & Kalkulasi" untuk mengambil berita terkini.
-    </p>
-    @endforelse
-</div>
 
-<!-- Area Bagan / Grafik Visual (Chart.js) -->
-<div class="layout-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 32px;">
-    <!-- Grafik Tren Nilai Tukar -->
-    <div class="card-panel">
-        <h2 class="card-panel-title">
-            <i class="fa-solid fa-chart-area" style="color: #fbbf24;"></i> Tren Nilai Tukar Historis
-        </h2>
-        <div style="position: relative; height: 300px; width: 100%;">
-            <canvas id="grafikForex"></canvas>
+    </div>
+
+    <!-- Parameter Analysis Bento Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Weather intelligence -->
+        <div class="bg-surface-container-low border border-outline-variant rounded-xl p-5 shadow-lg flex flex-col gap-4">
+            <h3 class="text-sm font-bold text-primary flex items-center gap-2 border-b border-outline-variant/30 pb-2.5">
+                <span class="material-symbols-outlined text-[18px]">cloud_sync</span>
+                Prakiraan Cuaca 7 Hari
+            </h3>
+
+            @if($cuacaTerkini)
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-surface-container-lowest border border-outline-variant/50 p-3.5 rounded-lg">
+                        <div class="text-[10px] text-on-surface-variant font-bold uppercase">Suhu Saat Ini</div>
+                        <div class="text-2xl font-black text-on-surface mt-1 font-label-sm">
+                            {{ $cuacaTerkini->suhu ?? 'N/A' }} °C
+                        </div>
+                        @if($cuacaTerkini->suhu_min && $cuacaTerkini->suhu_max)
+                            <div class="text-[9px] text-outline mt-0.5">Rentang: {{ $cuacaTerkini->suhu_min }}°C - {{ $cuacaTerkini->suhu_max }}°C</div>
+                        @endif
+                    </div>
+                    
+                    <div class="bg-surface-container-lowest border border-outline-variant/50 p-3.5 rounded-lg">
+                        <div class="text-[10px] text-on-surface-variant font-bold uppercase">Kondisi Cuaca</div>
+                        <div class="text-xs font-extrabold text-on-surface mt-2 uppercase tracking-wide truncate">
+                            {{ $cuacaTerkini->kondisi_cuaca ?? 'N/A' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs border-t border-outline-variant/20 pt-3">
+                    <div class="flex justify-between">
+                        <span class="text-on-surface-variant">Curah Hujan</span>
+                        <strong class="text-on-surface font-semibold">{{ $cuacaTerkini->curah_hujan ?? '0' }} mm</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-on-surface-variant">Kecepatan Angin</span>
+                        <strong class="text-on-surface font-semibold">{{ $cuacaTerkini->kecepatan_angin ?? '0' }} km/jam</strong>
+                    </div>
+                </div>
+
+                @if($prakiraan7Hari->count() > 1)
+                    <div class="border-t border-outline-variant/20 pt-3">
+                        <div class="text-[9px] text-outline font-extrabold uppercase tracking-wider mb-2">Ramalan Cuaca 7 Hari</div>
+                        <div class="grid grid-cols-7 gap-1">
+                            @foreach($prakiraan7Hari->take(7) as $hari)
+                                <div class="bg-surface-container-high/40 border border-outline-variant/30 p-1 rounded text-center">
+                                    <div class="text-[8px] text-on-surface-variant uppercase font-medium">{{ date('D', strtotime($hari->tanggal_observasi)) }}</div>
+                                    <div class="text-[10px] font-bold text-on-surface mt-1">{{ $hari->suhu_max ?? $hari->suhu ?? '--' }}°</div>
+                                    <div class="text-[8px] text-primary">{{ $hari->suhu_min ?? '--' }}°</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if($cuacaTerkini->insight_scm)
+                    <div class="bg-primary/5 border border-primary/20 rounded-lg p-3 text-xs text-on-surface-variant mt-auto">
+                        <div class="font-extrabold text-primary flex items-center gap-1 uppercase tracking-wider text-[10px] mb-1">
+                            <span class="material-symbols-outlined text-[13px]">lightbulb</span>
+                            Dampak Logistik SCM
+                        </div>
+                        <p class="leading-relaxed whitespace-pre-line">{{ $cuacaTerkini->insight_scm }}</p>
+                    </div>
+                @endif
+            @else
+                <div class="text-xs text-on-surface-variant text-center py-8 border border-dashed border-outline-variant rounded-lg">
+                    Belum ada data cuaca. Jalankan sinkronisasi untuk memuat data.
+                </div>
+            @endif
+        </div>
+
+        <!-- Macroeconomics -->
+        <div class="bg-surface-container-low border border-outline-variant rounded-xl p-5 shadow-lg flex flex-col gap-4">
+            <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2 border-b border-outline-variant/30 pb-2.5">
+                <span class="material-symbols-outlined text-[18px]">trending_up</span>
+                Indikator Ekonomi Makro
+            </h3>
+
+            <div class="space-y-3.5 my-auto text-xs">
+                <div class="flex justify-between border-b border-outline-variant/10 pb-2.5">
+                    <span class="text-on-surface-variant">Produk Domestik Bruto (PDB)</span>
+                    <strong class="text-on-surface font-extrabold font-label-sm">
+                        {{ $ekonomiTerkini && $ekonomiTerkini->pdb ? '$' . number_format($ekonomiTerkini->pdb / 1_000_000_000, 2) . ' Milyar' : 'N/A' }}
+                    </strong>
+                </div>
+                <div class="flex justify-between border-b border-outline-variant/10 pb-2.5">
+                    <span class="text-on-surface-variant">Tingkat Inflasi</span>
+                    <strong class="font-extrabold font-label-sm {{ ($ekonomiTerkini?->tingkat_inflasi ?? 0) > 5 ? 'text-error' : 'text-on-surface' }}">
+                        {{ $ekonomiTerkini ? $ekonomiTerkini->tingkat_inflasi . ' %' : 'N/A' }}
+                    </strong>
+                </div>
+                <div class="flex justify-between border-b border-outline-variant/10 pb-2.5">
+                    <span class="text-on-surface-variant">Tingkat Pengangguran</span>
+                    <strong class="text-on-surface font-extrabold font-label-sm">
+                        {{ $ekonomiTerkini ? $ekonomiTerkini->tingkat_pengangguran . ' %' : 'N/A' }}
+                    </strong>
+                </div>
+                <div class="flex justify-between border-b border-outline-variant/10 pb-2.5">
+                    <span class="text-on-surface-variant">Suku Bunga Riil</span>
+                    <strong class="text-on-surface font-extrabold font-label-sm">
+                        {{ $ekonomiTerkini ? $ekonomiTerkini->tingkat_bunga . ' %' : 'N/A' }}
+                    </strong>
+                </div>
+                <div class="flex justify-between pb-1">
+                    <span class="text-on-surface-variant">Neraca Perdagangan</span>
+                    <strong class="text-on-surface font-extrabold font-label-sm">
+                        {{ $ekonomiTerkini && $ekonomiTerkini->neraca_perdagangan ? '$' . number_format($ekonomiTerkini->neraca_perdagangan / 1_000_000, 2) . ' Juta' : 'N/A' }}
+                    </strong>
+                </div>
+            </div>
+            
+            <div class="text-[10px] text-outline text-center border-t border-outline-variant/20 pt-2.5">
+                Sumber Data Bank Dunia (World Bank API)
+            </div>
+        </div>
+
+        <!-- Forex / Currency -->
+        <div class="bg-surface-container-low border border-outline-variant rounded-xl p-5 shadow-lg flex flex-col gap-4">
+            <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2 border-b border-outline-variant/30 pb-2.5">
+                <span class="material-symbols-outlined text-[18px]">payments</span>
+                Nilai Tukar Forex (Valas)
+            </h3>
+
+            <div class="space-y-3 text-xs">
+                @forelse($nilaiTukarList->take(3) as $forex)
+                    <div class="flex justify-between border-b border-outline-variant/10 pb-2 last:border-b-0 last:pb-0">
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[14px] text-amber-400">monetization_on</span>
+                            <span class="text-on-surface-variant font-semibold">{{ $forex->kode_mata_uang }} / USD</span>
+                        </div>
+                        <strong class="text-on-surface font-extrabold font-label-sm">{{ number_format($forex->nilai_tukar, 4) }}</strong>
+                    </div>
+                @empty
+                    <div class="text-xs text-on-surface-variant text-center py-4 italic">Belum ada riwayat forex.</div>
+                @endforelse
+            </div>
+
+            @if($nilaiTukarTerkini?->insight_scm)
+                <div class="bg-amber-400/5 border border-amber-400/20 rounded-lg p-3 text-xs text-on-surface-variant mt-auto">
+                    <div class="font-extrabold text-amber-400 flex items-center gap-1 uppercase tracking-wider text-[10px] mb-1">
+                        <span class="material-symbols-outlined text-[13px]">trending_up</span>
+                        Analisis Sentimen Forex
+                    </div>
+                    <p class="leading-relaxed">{{ $nilaiTukarTerkini->insight_scm }}</p>
+                </div>
+            @endif
+        </div>
+
+    </div>
+
+    <!-- Active Ports Section (BARU & LEBIH KOMPLEKS) -->
+    <div class="bg-surface-container-low border border-outline-variant rounded-xl p-6 shadow-xl">
+        <h3 class="text-sm font-bold text-tertiary flex items-center gap-2 border-b border-outline-variant/30 pb-3 mb-4">
+            <span class="material-symbols-outlined text-[18px]">anchor</span>
+            Pelabuhan Maritim Utama SCM
+        </h3>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="border-b border-outline-variant text-on-surface-variant uppercase tracking-wider text-[10px] font-extrabold">
+                        <th class="pb-3 pr-4">Nama Pelabuhan</th>
+                        <th class="pb-3 px-4">LOCODE</th>
+                        <th class="pb-3 px-4">Kapasitas TEU</th>
+                        <th class="pb-3 px-4">Tingkat Kepadatan</th>
+                        <th class="pb-3 px-4">Skor Risiko</th>
+                        <th class="pb-3 px-4">Operator</th>
+                        <th class="pb-3 pl-4 text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10 text-on-surface font-medium">
+                    @forelse($negara->pelabuhans as $p)
+                        <tr class="hover:bg-surface-container-highest/20 transition-all">
+                            <td class="py-3 pr-4 font-bold text-sm text-on-surface">{{ $p->nama }}</td>
+                            <td class="py-3 px-4 text-outline font-mono">{{ $p->kode_locode }}</td>
+                            <td class="py-3 px-4 font-semibold">{{ $p->kapasitas_teu ? number_format($p->kapasitas_teu) : 'N/A' }} TEU</td>
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-16 bg-surface-container-lowest border border-outline-variant/30 h-1.5 rounded overflow-hidden">
+                                        <div class="h-full rounded" style="width: {{ $p->tingkat_kepadatan }}%; background-color: {{ $p->warnaMarker() }}"></div>
+                                    </div>
+                                    <span class="font-extrabold" style="color: {{ $p->warnaMarker() }}">{{ $p->tingkat_kepadatan }}%</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 font-bold">{{ $p->skor_risiko }}/100</td>
+                            <td class="py-3 px-4 text-on-surface-variant">{{ $p->operator ?? 'N/A' }}</td>
+                            <td class="py-3 pl-4 text-right">
+                                <a href="{{ route('beranda') }}?port={{ $p->lintang }},{{ $p->bujur }}" class="inline-flex items-center gap-1 text-primary hover:underline text-[11px] font-bold">
+                                    <span class="material-symbols-outlined text-[13px]">location_on</span>
+                                    Lihat Peta
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="py-6 text-center text-on-surface-variant italic border border-dashed border-outline-variant/50 rounded-lg">
+                                Tidak ada pelabuhan maritim utama terdaftar di negara ini.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Grafik Historis Skor Risiko -->
-    <div class="card-panel">
-        <h2 class="card-panel-title">
-            <i class="fa-solid fa-chart-line" style="color: #f87171;"></i> Fluktuasi Skor Risiko
-        </h2>
-        <div style="position: relative; height: 300px; width: 100%;">
-            <canvas id="grafikRisiko"></canvas>
+    <!-- Geopolitical News & Sentiments Feed -->
+    <div class="bg-surface-container-low border border-outline-variant rounded-xl p-6 shadow-xl">
+        <h3 class="text-sm font-bold text-on-surface flex items-center gap-2 border-b border-outline-variant/30 pb-3 mb-4">
+            <span class="material-symbols-outlined text-[18px]">satellite_dish</span>
+            Intelijen Keamanan &amp; Radar Sentimen
+        </h3>
+
+        <div class="space-y-5 divide-y divide-outline-variant/20">
+            @forelse($beritaList as $art)
+                <div class="pt-4 first:pt-0 flex flex-col gap-2.5">
+                    <div class="flex justify-between items-center text-[10px] text-on-surface-variant">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase
+                                @if($art->keparahan === 'kritis' || $art->keparahan === 'tinggi') bg-error-container text-on-error-container border border-error/20
+                                @elseif($art->keparahan === 'sedang') bg-amber-500/20 text-amber-400 border border-amber-500/30
+                                @else bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
+                                @endif
+                            ">
+                                Severity: {{ $art->keparahan }}
+                            </span>
+                            <span class="font-extrabold uppercase flex items-center gap-1
+                                @if($art->sentimen === 'negatif') text-error
+                                @elseif($art->sentimen === 'positif') text-emerald-400
+                                @else text-on-surface-variant
+                                @endif
+                            ">
+                                <span class="material-symbols-outlined text-[12px] font-bold">
+                                    {{ $art->sentimen === 'negatif' ? 'thumb_down' : ($art->sentimen === 'positif' ? 'thumb_up' : 'info') }}
+                                </span>
+                                {{ $art->sentimen }}
+                            </span>
+                            <span>•</span>
+                            <span class="font-semibold text-outline">{{ $art->sumber }}</span>
+                        </div>
+                        <span>{{ date('d M Y, H:i', strtotime($art->diterbitkan_pada)) }}</span>
+                    </div>
+
+                    @if($art->url_asli)
+                        <a href="{{ $art->url_asli }}" target="_blank" class="text-sm font-bold text-on-surface hover:text-primary transition-all leading-snug flex items-center gap-1.5 w-fit">
+                            {{ $art->judul }}
+                            <span class="material-symbols-outlined text-xs text-outline">open_in_new</span>
+                        </a>
+                    @else
+                        <h4 class="text-sm font-bold text-on-surface leading-snug">{{ $art->judul }}</h4>
+                    @endif
+
+                    @if($art->ringkasan)
+                        <p class="text-xs text-on-surface-variant leading-relaxed">{{ Str::limit($art->ringkasan, 280) }}</p>
+                    @endif
+
+                    @if($art->dampak_scm)
+                        <div class="bg-red-500/5 border-l-2 border-error p-3 rounded-r text-xs text-on-surface-variant mt-1.5">
+                            <strong class="text-error font-extrabold uppercase text-[10px] tracking-wider block mb-1">Analisis Dampak Logistik &amp; SCM:</strong>
+                            <p class="leading-relaxed">{{ $art->dampak_scm }}</p>
+                        </div>
+                    @endif
+                </div>
+            @empty
+                <div class="text-xs text-on-surface-variant text-center py-6 border border-dashed border-outline-variant/60 rounded-lg">
+                    Tidak ada artikel intelijen relevan yang disinkronkan untuk negara ini.
+                </div>
+            @endforelse
         </div>
     </div>
-</div>
 
-<!-- Grafik Prakiraan Cuaca 7 Hari -->
-<div class="card-panel" style="margin-top: 32px;">
-    <h2 class="card-panel-title">
-        <i class="fa-solid fa-cloud-sun-rain" style="color: #60a5fa;"></i> Tren Prakiraan Cuaca 7 Hari Ke Depan (Suhu Maksimum / Minimum)
-    </h2>
-    <div style="position: relative; height: 300px; width: 100%;">
-        <canvas id="grafikCuaca7Hari"></canvas>
+    <!-- Charts / Trend Visualizations -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Forex Historical Chart -->
+        <div class="bg-surface-container-low border border-outline-variant rounded-xl p-5 shadow-xl flex flex-col gap-4">
+            <h3 class="text-xs font-extrabold text-amber-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-outline-variant/30 pb-2">
+                <span class="material-symbols-outlined text-[16px]">chart_area</span>
+                Tren Forex Historis (Nilai Tukar ke USD)
+            </h3>
+            <div class="h-[280px] w-full">
+                <canvas id="grafikForex"></canvas>
+            </div>
+        </div>
+
+        <!-- Risk Score Fluctuation Chart -->
+        <div class="bg-surface-container-low border border-outline-variant rounded-xl p-5 shadow-xl flex flex-col gap-4">
+            <h3 class="text-xs font-extrabold text-error uppercase tracking-widest flex items-center gap-1.5 border-b border-outline-variant/30 pb-2">
+                <span class="material-symbols-outlined text-[16px]">show_chart</span>
+                Fluktuasi Nilai Indeks Risiko SCM
+            </h3>
+            <div class="h-[280px] w-full">
+                <canvas id="grafikRisiko"></canvas>
+            </div>
+        </div>
+
     </div>
-</div>
 
+    <!-- 7 Day Weather Temperature Chart -->
+    <div class="bg-surface-container-low border border-outline-variant rounded-xl p-5 shadow-xl flex flex-col gap-4">
+        <h3 class="text-xs font-extrabold text-primary uppercase tracking-widest flex items-center gap-1.5 border-b border-outline-variant/30 pb-2">
+            <span class="material-symbols-outlined text-[16px]">weather_mix</span>
+            Grafik Tren Suhu Prakiraan Cuaca 7 Hari Ke Depan
+        </h3>
+        <div class="h-[280px] w-full">
+            <canvas id="grafikCuaca7Hari"></canvas>
+        </div>
+    </div>
+
+</div>
 @endsection
 
 @section('skrip_tambahan')
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Konfigurasi Tema Gelap (Dark Mode) untuk Chart.js
-        Chart.defaults.color = '#9ca3af';
+        // Global configuration
+        Chart.defaults.color = '#bec6e0';
         Chart.defaults.font.family = "'Inter', sans-serif";
-        Chart.defaults.borderColor = 'rgba(55, 65, 81, 0.5)';
+        Chart.defaults.borderColor = 'rgba(51, 65, 85, 0.4)';
 
-        // ----------------------------------------------------
-        // 1. Grafik Tren Nilai Tukar (Forex)
-        // ----------------------------------------------------
-        const forexDataRaw = @json($nilaiTukarList->reverse()->values());
-        
-        if(forexDataRaw.length > 0) {
-            const forexLabels = forexDataRaw.map(item => {
-                const date = new Date(item.tanggal_berlaku);
-                return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-            });
-            const forexValues = forexDataRaw.map(item => item.nilai_tukar);
-            const mataUang = forexDataRaw[0].kode_mata_uang;
+        // 1. Forex Chart
+        const forexData = @json($nilaiTukarList->reverse()->values());
+        if (forexData.length > 0) {
+            const labels = forexData.map(item => new Date(item.tanggal_berlaku).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}));
+            const values = forexData.map(item => item.nilai_tukar);
+            const cCode = forexData[0].kode_mata_uang;
 
-            const ctxForex = document.getElementById('grafikForex').getContext('2d');
-            
-            // Gradient fill
-            let gradientForex = ctxForex.createLinearGradient(0, 0, 0, 300);
-            gradientForex.addColorStop(0, 'rgba(251, 191, 36, 0.5)'); // amber-400
-            gradientForex.addColorStop(1, 'rgba(251, 191, 36, 0.0)');
+            const ctx = document.getElementById('grafikForex').getContext('2d');
+            let gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, 'rgba(245, 158, 11, 0.35)');
+            gradient.addColorStop(1, 'rgba(245, 158, 11, 0.0)');
 
-            new Chart(ctxForex, {
+            new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: forexLabels,
+                    labels: labels,
                     datasets: [{
-                        label: `Nilai Tukar (\${mataUang} / USD)`,
-                        data: forexValues,
+                        label: `Nilai Tukar (${cCode}/USD)`,
+                        data: values,
                         borderColor: '#fbbf24',
-                        backgroundColor: gradientForex,
+                        backgroundColor: gradient,
                         borderWidth: 2,
-                        pointBackgroundColor: '#111827',
+                        pointBackgroundColor: '#081425',
                         pointBorderColor: '#fbbf24',
                         pointBorderWidth: 2,
                         pointRadius: 4,
                         fill: true,
-                        tension: 0.4 // curve
+                        tension: 0.35
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { mode: 'index', intersect: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: false },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.04)' } },
                         x: { grid: { display: false } }
                     }
                 }
             });
         }
 
-        // ----------------------------------------------------
-        // 2. Grafik Historis Skor Risiko
-        // ----------------------------------------------------
-        const risikoDataRaw = @json($riwayatRisiko->reverse()->values());
-        
-        if(risikoDataRaw.length > 0) {
-            const risikoLabels = risikoDataRaw.map(item => {
-                const date = new Date(item.dihitung_pada);
-                return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-            });
-            const risikoValues = risikoDataRaw.map(item => item.skor_total);
+        // 2. Risk History Chart
+        const riskData = @json($riwayatRisiko->reverse()->values());
+        if (riskData.length > 0) {
+            const labels = riskData.map(item => new Date(item.dihitung_pada).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', hour: '2-digit'}));
+            const values = riskData.map(item => item.skor_total);
 
-            const ctxRisiko = document.getElementById('grafikRisiko').getContext('2d');
-            
-            let gradientRisiko = ctxRisiko.createLinearGradient(0, 0, 0, 300);
-            gradientRisiko.addColorStop(0, 'rgba(239, 68, 68, 0.5)'); // red-500
-            gradientRisiko.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+            const ctx = document.getElementById('grafikRisiko').getContext('2d');
+            let gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, 'rgba(239, 68, 68, 0.35)');
+            gradient.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
 
-            new Chart(ctxRisiko, {
+            new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: risikoLabels,
+                    labels: labels,
                     datasets: [{
-                        label: 'Skor Risiko SCM',
-                        data: risikoValues,
+                        label: 'Skor Indeks Risiko',
+                        data: values,
                         borderColor: '#ef4444',
-                        backgroundColor: gradientRisiko,
+                        backgroundColor: gradient,
                         borderWidth: 2,
-                        pointBackgroundColor: '#111827',
+                        pointBackgroundColor: '#081425',
                         pointBorderColor: '#ef4444',
                         pointBorderWidth: 2,
                         pointRadius: 4,
                         fill: true,
-                        tension: 0.4
+                        tension: 0.35
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { mode: 'index', intersect: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { min: 0, max: 100 },
+                        y: { min: 0, max: 100, grid: { color: 'rgba(255, 255, 255, 0.04)' } },
                         x: { grid: { display: false } }
                     }
                 }
             });
         }
 
-        // ----------------------------------------------------
-        // 3. Grafik Prakiraan Cuaca 7 Hari
-        // ----------------------------------------------------
-        const cuacaDataRaw = @json($prakiraan7Hari->reverse()->values());
-        
-        if(cuacaDataRaw.length > 0) {
-            const cuacaLabels = cuacaDataRaw.map(item => {
-                const date = new Date(item.tanggal_observasi);
-                return date.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
-            });
-            const suhuMaxValues = cuacaDataRaw.map(item => item.suhu_max ?? item.suhu);
-            const suhuMinValues = cuacaDataRaw.map(item => item.suhu_min ?? (item.suhu ? item.suhu - 4 : 15));
+        // 3. Weather Forecast 7 Days Chart
+        const weatherData = @json($prakiraan7Hari->reverse()->values());
+        if (weatherData.length > 0) {
+            const labels = weatherData.map(item => new Date(item.tanggal_observasi).toLocaleDateString('id-ID', {weekday: 'short', day: 'numeric'}));
+            const maxTemps = weatherData.map(item => item.suhu_max ?? item.suhu);
+            const minTemps = weatherData.map(item => item.suhu_min ?? (item.suhu ? item.suhu - 4 : 15));
 
-            const ctxCuaca = document.getElementById('grafikCuaca7Hari').getContext('2d');
-
-            new Chart(ctxCuaca, {
+            const ctx = document.getElementById('grafikCuaca7Hari').getContext('2d');
+            new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: cuacaLabels,
+                    labels: labels,
                     datasets: [
                         {
                             label: 'Suhu Maksimum (°C)',
-                            data: suhuMaxValues,
-                            borderColor: '#f97316', // Orange
-                            backgroundColor: 'rgba(249, 115, 22, 0.05)',
-                            borderWidth: 2.5,
-                            pointBackgroundColor: '#111827',
+                            data: maxTemps,
+                            borderColor: '#f97316',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#081425',
                             pointBorderColor: '#f97316',
-                            pointBorderWidth: 2,
                             pointRadius: 4,
                             fill: false,
                             tension: 0.3
                         },
                         {
                             label: 'Suhu Minimum (°C)',
-                            data: suhuMinValues,
-                            borderColor: '#3b82f6', // Blue
-                            backgroundColor: 'rgba(59, 130, 246, 0.05)',
-                            borderWidth: 2.5,
-                            pointBackgroundColor: '#111827',
+                            data: minTemps,
+                            borderColor: '#3b82f6',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#081425',
                             pointBorderColor: '#3b82f6',
-                            pointBorderWidth: 2,
                             pointRadius: 4,
                             fill: false,
                             tension: 0.3
@@ -556,18 +562,9 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: true, labels: { color: '#e5e7eb' } },
-                        tooltip: { mode: 'index', intersect: false }
-                    },
+                    plugins: { legend: { display: true, labels: { color: '#bec6e0' } } },
                     scales: {
-                        y: { 
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '°C';
-                                }
-                            }
-                        },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.04)' } },
                         x: { grid: { display: false } }
                     }
                 }

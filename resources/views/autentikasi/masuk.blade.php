@@ -8,225 +8,101 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Material Symbols Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     
-    <style>
-        :root {
-            --warna-merah: #991b1b;
-            --warna-merah-terang: #ef4444;
-            --warna-charcoal: #0b0f19;
-            --warna-charcoal-card: rgba(17, 24, 39, 0.65);
-            --warna-charcoal-border: rgba(55, 65, 81, 0.5);
-            --warna-teks-putih: #f9fafb;
-            --warna-teks-abu: #9ca3af;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#b91c1c',
+                        secondary: '#d97706',
+                        error: '#ef4444',
+                        'on-primary': '#ffffff',
+                        'on-secondary': '#ffffff',
+                        'on-error': '#ffffff',
+                        'surface-container-lowest': '#05070c',
+                        'surface-container-low': '#0b0f19',
+                        'surface-container': '#111827',
+                        'surface-container-high': '#1f2937',
+                        'surface-container-highest': '#374151',
+                        'on-surface': '#f9fafb',
+                        'on-surface-variant': '#9ca3af',
+                        'outline': '#4b5563',
+                        'outline-variant': '#374151',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        headline: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: var(--warna-charcoal);
-            background-image: 
-                radial-gradient(at 10% 20%, rgba(153, 27, 27, 0.15) 0px, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(217, 119, 6, 0.08) 0px, transparent 50%);
-            color: var(--warna-teks-putih);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-card {
-            background-color: var(--warna-charcoal-card);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--warna-charcoal-border);
-            width: 100%;
-            max-width: 440px;
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .login-icon {
-            font-size: 40px;
-            color: var(--warna-merah-terang);
-            margin-bottom: 16px;
-            display: inline-block;
-            filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.4));
-        }
-
-        .login-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        .login-subtitle {
-            color: var(--warna-teks-abu);
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-            position: relative;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 13px;
-            color: var(--warna-teks-abu);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .input-icon-wrapper {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--warna-teks-abu);
-            font-size: 16px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 14px 16px 14px 48px;
-            background-color: rgba(11, 15, 25, 0.8);
-            border: 1px solid var(--warna-charcoal-border);
-            border-radius: 8px;
-            color: var(--warna-teks-putih);
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--warna-merah-terang);
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.2);
-        }
-
-        .flex-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
-            font-size: 13px;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            color: var(--warna-teks-abu);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--warna-merah);
-            color: var(--warna-teks-putih);
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-submit:hover {
-            background-color: var(--warna-merah-terang);
-            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
-        }
-
-        .error-message {
-            color: #f87171;
-            font-size: 12px;
-            margin-top: 6px;
-            display: block;
-        }
-
-        .alert-error {
-            background-color: rgba(239, 68, 68, 0.15);
-            border: 1px solid var(--warna-merah-terang);
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            color: #f87171;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-    </style>
+    </script>
 </head>
-<body>
+<body class="bg-surface-container-lowest text-on-surface min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
 
-    <div class="login-card">
-        <div class="login-header">
-            <span class="login-icon"><img src="{{ asset('images/Horus.png') }}" alt="Horus Icon" style="height: 48px; width: auto; border-radius: 8px;"></span>
-            <h2 class="login-title">Horus Intelligence</h2>
-            <p class="login-subtitle">Supply Chain Intelligence Platform</p>
+    <!-- Ambient background glow -->
+    <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="bg-surface-container-low border border-outline-variant w-full max-w-[420px] rounded-2xl p-8 md:p-10 shadow-2xl relative z-10">
+        
+        <!-- Header -->
+        <div class="text-center mb-8 flex flex-col items-center gap-3">
+            <div class="relative">
+                <img src="{{ asset('images/Horus.png') }}" alt="Horus Icon" class="h-12 w-auto rounded-lg shadow-lg border border-outline-variant">
+                <div class="absolute -inset-1 rounded-lg bg-primary/20 blur opacity-30 pointer-events-none"></div>
+            </div>
+            <div>
+                <h2 class="font-headline text-xl font-black tracking-wide text-on-surface">Horus Intelligence</h2>
+                <p class="text-xs text-on-surface-variant font-medium mt-1">Global Supply Chain Risk Platform</p>
+            </div>
         </div>
 
         @if($errors->any())
-            <div class="alert-error">
-                <i class="fa-solid fa-circle-exclamation"></i>
+            <div class="bg-error/10 border border-error/30 px-4 py-3 rounded-lg mb-6 flex items-start gap-2.5 text-xs text-error font-semibold leading-relaxed">
+                <span class="material-symbols-outlined text-[16px] flex-shrink-0 mt-0.5">report</span>
                 <span>{{ $errors->first() }}</span>
             </div>
         @endif
 
-        <form action="{{ route('masuk.submit') }}" method="POST">
+        <form action="{{ route('masuk.submit') }}" method="POST" class="space-y-5">
             @csrf
-            <div class="form-group">
-                <label for="email" class="form-label">Email Korporat</label>
-                <div class="input-icon-wrapper">
-                    <i class="fa-solid fa-envelope input-icon"></i>
-                    <input type="email" name="email" id="email" class="form-input" placeholder="nama@horus.local" value="{{ old('email') }}" required autofocus>
+            
+            <div class="flex flex-col gap-1.5">
+                <label for="email" class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Email Korporat</label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline-variant material-symbols-outlined text-[18px] select-none">mail</span>
+                    <input type="email" name="email" id="email" 
+                           class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-3 text-xs text-on-surface focus:ring-1 focus:ring-primary focus:outline-none placeholder-outline-variant transition-all font-semibold" 
+                           placeholder="nama@horus.local" value="{{ old('email') }}" required autofocus>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="password" class="form-label">Kata Sandi</label>
-                <div class="input-icon-wrapper">
-                    <i class="fa-solid fa-lock input-icon"></i>
-                    <input type="password" name="password" id="password" class="form-input" placeholder="••••••••" required>
+            <div class="flex flex-col gap-1.5">
+                <label for="password" class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Kata Sandi</label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline-variant material-symbols-outlined text-[18px] select-none">lock</span>
+                    <input type="password" name="password" id="password" 
+                           class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-3 text-xs text-on-surface focus:ring-1 focus:ring-primary focus:outline-none placeholder-outline-variant transition-all font-semibold" 
+                           placeholder="••••••••" required>
                 </div>
             </div>
 
-            <div class="flex-row">
-                <label class="checkbox-label">
-                    <input type="checkbox" name="ingat_saya" value="1">
+            <div class="flex items-center justify-between text-xs py-1">
+                <label class="flex items-center gap-2 cursor-pointer text-on-surface-variant font-bold uppercase tracking-wider text-[10px] select-none">
+                    <input type="checkbox" name="ingat_saya" value="1" class="rounded bg-surface-container-lowest border-outline-variant text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer">
                     <span>Ingat saya</span>
                 </label>
             </div>
 
-            <button type="submit" class="btn-submit">
+            <button type="submit" class="w-full flex items-center justify-center gap-2 bg-primary hover:opacity-90 text-on-primary font-bold text-xs uppercase tracking-wider py-3.5 rounded-lg shadow-lg transition-all">
                 <span>Autentikasi Aman</span>
-                <i class="fa-solid fa-arrow-right"></i>
+                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
             </button>
         </form>
     </div>

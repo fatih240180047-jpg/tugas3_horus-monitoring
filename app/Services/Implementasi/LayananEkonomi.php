@@ -31,7 +31,11 @@ class LayananEkonomi implements LayananEkonomiInterface
         $config = config('intelijen.ekonomi');
         $simulasi = config('intelijen.simulasi.aktif');
 
-
+        if ($simulasi) {
+            Log::info("Mode simulasi aktif untuk ekonomi {$negara->nama}");
+            $dto = DtoEkonomi::dariSimulasi($negara->kode_iso, $tahun);
+            return $this->repositoriEkonomi->simpan($negara, $dto);
+        }
 
         try {
             $pdb = null;
@@ -44,7 +48,7 @@ class LayananEkonomi implements LayananEkonomiInterface
             foreach ($config['indikator'] as $kunci => $code) {
                 // Contoh endpoint: country/IDN/indicator/NY.GDP.MKTP.CD?mrnev=1&format=json
                 $url = "{$config['url_dasar']}/country/{$negara->kode_iso}/indicator/{$code}";
-                $response = Http::timeout($config['timeout'])
+                $response = Http::timeout(5)
                     ->get($url, [
                         'mrnev'  => 1,
                         'format' => $config['format'],
@@ -124,7 +128,9 @@ class LayananEkonomi implements LayananEkonomiInterface
                 return $latest;
             }
 
-            throw new Exception("Gagal melakukan sinkronisasi dengan World Bank API dan tidak ada data historis di database untuk {$negara->nama}: " . $e->getMessage());
+            Log::info("Menghasilkan data ekonomi tiruan untuk {$negara->nama}");
+            $dto = DtoEkonomi::dariSimulasi($negara->kode_iso, $tahun);
+            return $this->repositoriEkonomi->simpan($negara, $dto);
         }
     }
 }

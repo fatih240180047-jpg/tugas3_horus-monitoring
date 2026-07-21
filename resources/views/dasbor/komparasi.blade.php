@@ -2,129 +2,162 @@
 @section('judul', 'Country Comparison Engine')
 @section('gaya_tambahan')
 <style>
-[x-cloak]{display:none!important}
-.komparasi-grid{display:grid;grid-template-columns:1fr 60px 1fr;gap:0;min-height:calc(100vh - 200px)}
-.panel-negara{background:var(--warna-kaca);border:1px solid var(--warna-charcoal-border);border-radius:12px;padding:24px;overflow-y:auto}
-.vs-divider{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 8px}
-.vs-badge{background:var(--warna-merah);color:#fff;font-family:'Outfit';font-weight:800;font-size:18px;padding:10px 14px;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center}
-.select-negara{width:100%;background:rgba(0,0,0,0.3);color:#fff;border:1px solid var(--warna-charcoal-border);padding:12px 16px;border-radius:8px;font-size:14px;font-family:'Inter'}
-.select-negara:focus{outline:none;border-color:#ef4444}
-.metrik-baris{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px}
-.metrik-baris:last-child{border-bottom:none}
-.modul-judul{font-family:'Outfit';font-size:15px;font-weight:600;padding:12px 0 8px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.chart-wrap{height:220px;position:relative;margin:12px 0}
-.win-badge{font-size:10px;padding:2px 6px;border-radius:3px;font-weight:700}
-.win{background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid #22c55e}
-.lose{background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef4444}
-.tie{background:rgba(156,163,175,0.2);color:#9ca3af;border:1px solid #9ca3af}
+[x-cloak] { display: none !important; }
 </style>
 @endsection
 
 @section('konten')
-<div x-data="komparasiEngine()" x-init="init()">
+<div x-data="komparasiEngine()" x-init="init()" class="space-y-6">
 
-    <!-- Header & Selector -->
-    <div style="display:flex;gap:16px;align-items:center;margin-bottom:24px;flex-wrap:wrap">
-        <div style="flex:1;min-width:220px">
-            <label style="font-size:11px;color:#9ca3af;text-transform:uppercase;display:block;margin-bottom:6px">Negara A</label>
-            <select class="select-negara" x-model="isoA" @change="mulaiKomparasi()">
-                <option value="">-- Pilih Negara A --</option>
-                @foreach($negaraList as $n)
-                    <option value="{{ $n->kode_iso }}">{{ $n->nama }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div style="text-align:center;padding-top:20px">
-            <div class="vs-badge">VS</div>
-        </div>
-        <div style="flex:1;min-width:220px">
-            <label style="font-size:11px;color:#9ca3af;text-transform:uppercase;display:block;margin-bottom:6px">Negara B</label>
-            <select class="select-negara" x-model="isoB" @change="mulaiKomparasi()">
-                <option value="">-- Pilih Negara B --</option>
-                @foreach($negaraList as $n)
-                    <option value="{{ $n->kode_iso }}">{{ $n->nama }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div style="padding-top:20px">
-            <button @click="mulaiKomparasi()" class="btn btn-primer" :disabled="isLoading">
-                <i class="fa-solid fa-scale-balanced"></i> Bandingkan
-            </button>
-        </div>
-    </div>
-
-    <!-- Loading -->
-    <div x-show="isLoading" style="text-align:center;padding:60px;color:#9ca3af">
-        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:36px;color:#ef4444"></i>
-        <div style="margin-top:12px">Menganalisis data intelijen SCM…</div>
-    </div>
-
-    <!-- Placeholder -->
-    <div x-show="!hasil && !isLoading" style="text-align:center;padding:80px 20px;color:#6b7280">
-        <i class="fa-solid fa-scale-balanced" style="font-size:48px;margin-bottom:16px;display:block;opacity:0.3"></i>
-        <div style="font-size:16px;font-family:'Outfit'">Pilih dua negara untuk memulai perbandingan</div>
-        <div style="font-size:13px;margin-top:8px">Sistem akan membandingkan Risiko SCM, Cuaca, Ekonomi, Forex & Pelabuhan secara real-time.</div>
-    </div>
-
-    <!-- Hasil Komparasi -->
-    <div x-show="hasil && !isLoading" x-cloak>
-
-        <!-- Radar Chart Global -->
-        <div style="background:var(--warna-kaca);border:1px solid var(--warna-charcoal-border);border-radius:12px;padding:24px;margin-bottom:24px">
-            <div class="modul-judul"><i class="fa-solid fa-spider"></i> Radar Perbandingan Risiko SCM Multi-Dimensi</div>
-            <div style="max-width:500px;margin:0 auto;height:300px"><canvas id="radarChart"></canvas></div>
+    <!-- Header & Selector HUD -->
+    <div class="bg-surface-container-low border border-outline-variant rounded-xl p-6 shadow-xl">
+        
+        <div class="border-b border-outline-variant/30 pb-4 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h2 class="font-headline-md text-base font-black text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-primary">compare_arrows</span>
+                    Country Comparison Engine
+                </h2>
+                <p class="text-xs text-on-surface-variant mt-1.5 leading-relaxed">
+                    Bandingkan parameter risiko, cuaca, ekonomi, dan forex antara dua negara secara head-to-head.
+                </p>
+            </div>
         </div>
 
-        <!-- Split Panel -->
-        <div class="komparasi-grid" style="gap:20px;grid-template-columns:1fr 1fr">
-
+        <div class="flex flex-col lg:flex-row gap-6 items-center w-full">
             <!-- Negara A -->
-            <div class="panel-negara" style="border-top:3px solid #3b82f6">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                    <div style="display:flex;align-items:center;gap:12px">
-                        <img :src="'https://flagcdn.com/w40/' + hasil?.negara_a?.profil?.bendera + '.png'" style="height:20px;width:30px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,0.15)" :alt="hasil?.negara_a?.profil?.nama + ' Flag'">
-                        <div>
-                            <div style="font-family:'Outfit';font-size:20px;font-weight:700" x-text="hasil?.negara_a?.profil?.nama"></div>
-                            <div style="font-size:11px;color:#9ca3af" x-text="hasil?.negara_a?.profil?.kawasan"></div>
-                        </div>
-                    </div>
-                    <div x-show="hasil?.negara_a?.risiko" style="text-align:right">
-                        <div style="font-size:28px;font-weight:800;font-family:'Outfit'" :style="getWarnaRisiko(hasil?.negara_a?.risiko?.level)" x-text="hasil?.negara_a?.risiko?.skor + '/100'"></div>
-                        <div class="badge-dynamic" :style="getBgRisiko(hasil?.negara_a?.risiko?.level)" x-text="hasil?.negara_a?.risiko?.level"></div>
-                    </div>
+            <div class="w-full lg:flex-1">
+                <label class="text-[10px] text-outline font-extrabold uppercase tracking-widest block mb-2">Negara Hub A</label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline-variant material-symbols-outlined text-[18px] select-none pointer-events-none">location_on</span>
+                    <select x-model="isoA" @change="mulaiKomparasi()" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-3.5 py-3 text-xs text-on-surface focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer font-semibold appearance-none">
+                        <option value="">-- Pilih Negara A --</option>
+                        @foreach($negaraList as $n)
+                            <option value="{{ $n->kode_iso }}">{{ $n->nama }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <div x-html="renderDetailNegara(hasil?.negara_a, 'a')"></div>
+            </div>
+            
+            <!-- VS Badge -->
+            <div class="flex-shrink-0 flex items-center justify-center -my-2 lg:my-0 lg:pt-6">
+                <div class="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-md text-sm font-black shadow-[0_0_15px_rgba(185,28,28,0.5)] border-2 border-surface-container-low z-10 select-none">VS</div>
             </div>
 
             <!-- Negara B -->
-            <div class="panel-negara" style="border-top:3px solid #ef4444">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                    <div style="display:flex;align-items:center;gap:12px">
-                        <img :src="'https://flagcdn.com/w40/' + hasil?.negara_b?.profil?.bendera + '.png'" style="height:20px;width:30px;object-fit:cover;border-radius:3px;border:1px solid rgba(255,255,255,0.15)" :alt="hasil?.negara_b?.profil?.nama + ' Flag'">
-                        <div>
-                            <div style="font-family:'Outfit';font-size:20px;font-weight:700" x-text="hasil?.negara_b?.profil?.nama"></div>
-                            <div style="font-size:11px;color:#9ca3af" x-text="hasil?.negara_b?.profil?.kawasan"></div>
-                        </div>
-                    </div>
-                    <div x-show="hasil?.negara_b?.risiko" style="text-align:right">
-                        <div style="font-size:28px;font-weight:800;font-family:'Outfit'" :style="getWarnaRisiko(hasil?.negara_b?.risiko?.level)" x-text="hasil?.negara_b?.risiko?.skor + '/100'"></div>
-                        <div class="badge-dynamic" :style="getBgRisiko(hasil?.negara_b?.risiko?.level)" x-text="hasil?.negara_b?.risiko?.level"></div>
-                    </div>
+            <div class="w-full lg:flex-1">
+                <label class="text-[10px] text-outline font-extrabold uppercase tracking-widest block mb-2">Negara Hub B</label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-outline-variant material-symbols-outlined text-[18px] select-none pointer-events-none">location_on</span>
+                    <select x-model="isoB" @change="mulaiKomparasi()" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-3.5 py-3 text-xs text-on-surface focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer font-semibold appearance-none">
+                        <option value="">-- Pilih Negara B --</option>
+                        @foreach($negaraList as $n)
+                            <option value="{{ $n->kode_iso }}">{{ $n->nama }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <div x-html="renderDetailNegara(hasil?.negara_b, 'b')"></div>
+            </div>
+
+            <div class="w-full lg:w-auto lg:pt-6">
+                <button @click="mulaiKomparasi()" class="w-full flex items-center justify-center gap-1.5 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-on-surface font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed" :disabled="isLoading">
+                    <span class="material-symbols-outlined text-[16px]" x-show="!isLoading">youtube_searched_for</span>
+                    <span class="material-symbols-outlined text-[16px] animate-spin" x-show="isLoading" x-cloak>sync</span>
+                    Bandingkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div x-show="isLoading" class="text-center py-16 px-6 bg-surface-container-low border border-dashed border-outline-variant rounded-xl" x-cloak>
+        <span class="material-symbols-outlined text-4xl text-primary animate-spin mb-3 block">sync</span>
+        <div class="text-sm font-bold text-on-surface">Menganalisis data intelijen SCM…</div>
+        <div class="text-xs text-on-surface-variant mt-1">Harap tunggu, mesin komparasi sedang bekerja.</div>
+    </div>
+
+    <!-- Placeholder State -->
+    <div x-show="!hasil && !isLoading" class="text-center py-16 px-6 bg-surface-container-low border border-dashed border-outline-variant rounded-xl" x-cloak>
+        <span class="material-symbols-outlined text-5xl text-outline mb-4 block opacity-50">balance</span>
+        <div class="font-headline-md text-xl font-bold text-on-surface">Pilih dua negara untuk memulai perbandingan</div>
+        <div class="text-xs text-on-surface-variant mt-2 max-w-md mx-auto">Sistem akan membandingkan Indeks Risiko SCM, Data Cuaca, Parameter Makroekonomi, Forex & Kapasitas Pelabuhan secara real-time.</div>
+    </div>
+
+    <!-- Hasil Komparasi Grid -->
+    <div x-show="hasil && !isLoading" class="space-y-6" x-cloak>
+
+        <!-- Radar Chart Global -->
+        <div class="bg-surface-container-low border border-outline-variant rounded-xl p-6 shadow-xl">
+            <h3 class="font-headline-md text-sm font-bold text-on-surface flex items-center gap-2 border-b border-outline-variant/30 pb-3 mb-4">
+                <span class="material-symbols-outlined text-[18px] text-secondary">radar</span>
+                Radar Perbandingan Risiko SCM Multi-Dimensi
+            </h3>
+            <div class="w-full max-w-2xl mx-auto h-[320px] relative">
+                <canvas id="radarChart"></canvas>
             </div>
         </div>
 
-        <!-- Tombol Laporan Penuh -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px">
-            <a :href="'/negara/' + isoA" class="btn btn-sekunder" style="justify-content:center"><i class="fa-solid fa-magnifying-glass-chart"></i> Laporan Penuh: <span x-text="isoA"></span></a>
-            <a :href="'/negara/' + isoB" class="btn btn-sekunder" style="justify-content:center"><i class="fa-solid fa-magnifying-glass-chart"></i> Laporan Penuh: <span x-text="isoB"></span></a>
+        <!-- Split Panel perbandingan -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Panel Negara A -->
+            <div class="bg-surface-container-low border border-outline-variant rounded-xl p-6 shadow-xl border-t-4 border-t-blue-500 transition-all hover:shadow-2xl">
+                <!-- Header A -->
+                <div class="flex justify-between items-start mb-6">
+                    <div class="flex items-center gap-3">
+                        <img :src="hasil?.negara_a?.profil?.bendera ? 'https://flagcdn.com/w40/' + hasil.negara_a.profil.bendera + '.png' : ''" class="h-6 w-9 object-cover rounded shadow-sm border border-outline-variant" alt="">
+                        <div class="leading-tight">
+                            <h4 class="font-headline-md text-lg font-bold text-on-surface" x-text="hasil?.negara_a?.profil?.nama"></h4>
+                            <span class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider mt-0.5 block" x-text="hasil?.negara_a?.profil?.kawasan"></span>
+                        </div>
+                    </div>
+                    <div x-show="hasil?.negara_a?.risiko" class="text-right">
+                        <div class="font-headline-md text-2xl font-black font-label-sm" :class="getTextWarnaRisikoClass(hasil?.negara_a?.risiko?.level)" x-text="hasil?.negara_a?.risiko?.skor + '/100'"></div>
+                        <div class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase mt-1 inline-block" :class="getBadgeRisikoClass(hasil?.negara_a?.risiko?.level)" x-text="hasil?.negara_a?.risiko?.level"></div>
+                    </div>
+                </div>
+                
+                <!-- Content A -->
+                <div x-html="renderDetailNegara(hasil?.negara_a, 'a')" class="space-y-4"></div>
+                
+                <a :href="'/negara/' + isoA" class="mt-6 flex items-center justify-center gap-1.5 w-full bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-on-surface font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-lg transition-all shadow">
+                    <span class="material-symbols-outlined text-[16px]">travel_explore</span>
+                    Laporan SCM Penuh
+                </a>
+            </div>
+
+            <!-- Panel Negara B -->
+            <div class="bg-surface-container-low border border-outline-variant rounded-xl p-6 shadow-xl border-t-4 border-t-red-500 transition-all hover:shadow-2xl">
+                <!-- Header B -->
+                <div class="flex justify-between items-start mb-6">
+                    <div class="flex items-center gap-3">
+                        <img :src="hasil?.negara_b?.profil?.bendera ? 'https://flagcdn.com/w40/' + hasil.negara_b.profil.bendera + '.png' : ''" class="h-6 w-9 object-cover rounded shadow-sm border border-outline-variant" alt="">
+                        <div class="leading-tight">
+                            <h4 class="font-headline-md text-lg font-bold text-on-surface" x-text="hasil?.negara_b?.profil?.nama"></h4>
+                            <span class="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider mt-0.5 block" x-text="hasil?.negara_b?.profil?.kawasan"></span>
+                        </div>
+                    </div>
+                    <div x-show="hasil?.negara_b?.risiko" class="text-right">
+                        <div class="font-headline-md text-2xl font-black font-label-sm" :class="getTextWarnaRisikoClass(hasil?.negara_b?.risiko?.level)" x-text="hasil?.negara_b?.risiko?.skor + '/100'"></div>
+                        <div class="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase mt-1 inline-block" :class="getBadgeRisikoClass(hasil?.negara_b?.risiko?.level)" x-text="hasil?.negara_b?.risiko?.level"></div>
+                    </div>
+                </div>
+                
+                <!-- Content B -->
+                <div x-html="renderDetailNegara(hasil?.negara_b, 'b')" class="space-y-4"></div>
+                
+                <a :href="'/negara/' + isoB" class="mt-6 flex items-center justify-center gap-1.5 w-full bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-on-surface font-bold text-xs uppercase tracking-wider px-4 py-2.5 rounded-lg transition-all shadow">
+                    <span class="material-symbols-outlined text-[16px]">travel_explore</span>
+                    Laporan SCM Penuh
+                </a>
+            </div>
+            
         </div>
     </div>
 </div>
 @endsection
 
 @section('skrip_tambahan')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('alpine:init', () => {
     Alpine.data('komparasiEngine', () => ({
@@ -137,7 +170,7 @@ document.addEventListener('alpine:init', () => {
 
         async mulaiKomparasi() {
             if (!this.isoA || !this.isoB) return;
-            if (this.isoA === this.isoB) { alert('Pilih dua negara yang berbeda!'); return; }
+            if (this.isoA === this.isoB) { alert('Harap pilih dua negara yang berbeda!'); return; }
             this.isLoading = true;
             this.hasil = null;
             try {
@@ -148,8 +181,11 @@ document.addEventListener('alpine:init', () => {
                 });
                 this.hasil = await res.json();
                 this.$nextTick(() => this.renderRadar());
-            } catch(e) { alert('Gagal mengambil data.'); }
-            finally { this.isLoading = false; }
+            } catch(e) { 
+                alert('Gagal mengambil data intelijen dari server.'); 
+            } finally { 
+                this.isLoading = false; 
+            }
         },
 
         renderRadar() {
@@ -160,14 +196,25 @@ document.addEventListener('alpine:init', () => {
             this.radarChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['Risiko Total', 'Stabilitas Cuaca', 'Kesehatan Ekonomi', 'Stabilitas Forex', 'Berita Positif', 'Kapasitas Pelabuhan'],
+                    labels: ['Risiko Total SCM', 'Stabilitas Cuaca', 'Kesehatan Ekonomi', 'Stabilitas Forex', 'Sentimen Positif', 'Kapasitas Pelabuhan'],
                     datasets: [
                         { label: a?.profil?.nama, data: this.hitungSkorRadar(a), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.15)', pointBackgroundColor:'#3b82f6', borderWidth:2 },
                         { label: b?.profil?.nama, data: this.hitungSkorRadar(b), borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.15)', pointBackgroundColor:'#ef4444', borderWidth:2 }
                     ]
                 },
-                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#e5e7eb'}}},
-                    scales:{ r:{ min:0, max:100, ticks:{color:'#9ca3af',stepSize:20,backdropColor:'transparent'}, grid:{color:'rgba(255,255,255,0.1)'}, pointLabels:{color:'#e5e7eb',font:{size:11}} } }
+                options: { 
+                    responsive:true, maintainAspectRatio:false, 
+                    plugins:{
+                        legend:{labels:{color:'#f9fafb', font:{family:'Outfit', size:12, weight:'bold'}}}
+                    },
+                    scales:{ 
+                        r:{ 
+                            min:0, max:100, 
+                            ticks:{color:'#9ca3af',stepSize:20,backdropColor:'transparent'}, 
+                            grid:{color:'rgba(255,255,255,0.1)'}, 
+                            pointLabels:{color:'#f9fafb',font:{family:'Outfit', size:11, weight:'bold'}} 
+                        } 
+                    }
                 }
             });
         },
@@ -186,51 +233,79 @@ document.addEventListener('alpine:init', () => {
         renderDetailNegara(n, sisi) {
             if (!n) return '';
             const lain = sisi === 'a' ? this.hasil?.negara_b : this.hasil?.negara_a;
+            
             const winTag = (valSaya, valLain, lebihBaikTinggi = true) => {
                 if (valSaya == null || valLain == null) return '';
                 const menang = lebihBaikTinggi ? valSaya > valLain : valSaya < valLain;
                 const seri   = valSaya === valLain;
-                if (seri) return `<span class="win-badge tie">SERI</span>`;
-                return menang ? `<span class="win-badge win">✓ LEBIH BAIK</span>` : `<span class="win-badge lose">✗ LEBIH LEMAH</span>`;
+                
+                if (seri) return `<span class="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase bg-surface-container-highest text-on-surface-variant border border-outline-variant">SERI</span>`;
+                return menang ? `<span class="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">✓ UNGGUL</span>` : `<span class="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase bg-error-container text-on-error-container border border-error/20">✗ LEMAH</span>`;
             };
+
+            const blockTitle = (icon, text, colorClass) => `
+                <h4 class="text-[10px] ${colorClass} font-extrabold uppercase tracking-widest flex items-center gap-1.5 border-b border-outline-variant/30 pb-2 mb-2">
+                    <span class="material-symbols-outlined text-[14px]">${icon}</span> ${text}
+                </h4>
+            `;
+
+            const dataRow = (label, value, tag = '') => `
+                <div class="flex justify-between items-center text-xs py-1.5 border-b border-outline-variant/10 last:border-b-0">
+                    <span class="text-on-surface-variant font-semibold">${label}</span>
+                    <span class="text-on-surface font-bold flex items-center gap-2">${value} ${tag}</span>
+                </div>
+            `;
+
             let html = '';
+            
             // Cuaca
-            html += `<div class="modul-judul" style="color:#60a5fa"><i class="fa-solid fa-cloud-sun"></i> Cuaca</div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">Suhu Terkini</span><span>${n.cuaca?.suhu ?? 'N/A'}°C ${winTag(n.cuaca?.suhu, lain?.cuaca?.suhu, false)}</span></div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">Kecepatan Angin</span><span>${n.cuaca?.angin ?? 'N/A'} km/h ${winTag(n.cuaca?.angin, lain?.cuaca?.angin, false)}</span></div>`;
+            html += `<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-lg p-4">`;
+            html += blockTitle('cloud', 'Stabilitas Cuaca', 'text-blue-400');
+            html += dataRow('Suhu Terkini', `${n.cuaca?.suhu ?? 'N/A'}°C`, winTag(n.cuaca?.suhu, lain?.cuaca?.suhu, false));
+            html += dataRow('Kecepatan Angin', `${n.cuaca?.angin ?? 'N/A'} km/h`, winTag(n.cuaca?.angin, lain?.cuaca?.angin, false));
+            html += `</div>`;
+            
             // Ekonomi
-            html += `<div class="modul-judul" style="color:#34d399;margin-top:16px"><i class="fa-solid fa-chart-line"></i> Ekonomi</div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">Inflasi</span><span>${n.ekonomi?.inflasi ?? 'N/A'}% ${winTag(n.ekonomi?.inflasi, lain?.ekonomi?.inflasi, false)}</span></div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">PDB</span><span>$${n.ekonomi?.pdb_miliar ?? 'N/A'} M ${winTag(n.ekonomi?.pdb_miliar, lain?.ekonomi?.pdb_miliar, true)}</span></div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">Pengangguran</span><span>${n.ekonomi?.pengangguran ?? 'N/A'}% ${winTag(n.ekonomi?.pengangguran, lain?.ekonomi?.pengangguran, false)}</span></div>`;
+            html += `<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-lg p-4">`;
+            html += blockTitle('trending_up', 'Makroekonomi', 'text-emerald-400');
+            html += dataRow('Laju Inflasi', `${n.ekonomi?.inflasi ?? 'N/A'}%`, winTag(n.ekonomi?.inflasi, lain?.ekonomi?.inflasi, false));
+            html += dataRow('PDB (Miliar)', `$${n.ekonomi?.pdb_miliar ?? 'N/A'} B`, winTag(n.ekonomi?.pdb_miliar, lain?.ekonomi?.pdb_miliar, true));
+            html += dataRow('Tingkat Pengangguran', `${n.ekonomi?.pengangguran ?? 'N/A'}%`, winTag(n.ekonomi?.pengangguran, lain?.ekonomi?.pengangguran, false));
+            html += `</div>`;
+            
             // Forex
-            html += `<div class="modul-judul" style="color:#fbbf24;margin-top:16px"><i class="fa-solid fa-coins"></i> Forex (${n.forex?.mata_uang}/USD)</div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">Nilai Tukar</span><span>${Number(n.forex?.terkini ?? 0).toFixed(4)}</span></div>`;
+            html += `<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-lg p-4">`;
+            html += blockTitle('payments', `Forex (${n.forex?.mata_uang}/USD)`, 'text-amber-400');
+            html += dataRow('Nilai Tukar Terkini', `${Number(n.forex?.terkini ?? 0).toFixed(4)}`);
+            html += `</div>`;
+            
             // Berita
-            html += `<div class="modul-judul" style="color:#e5e7eb;margin-top:16px"><i class="fa-solid fa-newspaper"></i> Radar Berita</div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">Berita Kritis</span><span style="color:#ef4444">${n.berita?.kritis ?? 0} artikel ${winTag(n.berita?.kritis, lain?.berita?.kritis, false)}</span></div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">Sentimen Positif</span><span style="color:#22c55e">${n.berita?.positif ?? 0} artikel ${winTag(n.berita?.positif, lain?.berita?.positif, true)}</span></div>`;
+            html += `<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-lg p-4">`;
+            html += blockTitle('radar', 'Radar Sentimen', 'text-on-surface');
+            html += dataRow('Berita Berisiko', `<span class="text-error">${n.berita?.kritis ?? 0}</span>`, winTag(n.berita?.kritis, lain?.berita?.kritis, false));
+            html += dataRow('Sentimen Positif', `<span class="text-emerald-400">${n.berita?.positif ?? 0}</span>`, winTag(n.berita?.positif, lain?.berita?.positif, true));
+            html += `</div>`;
+
             // Pelabuhan
-            html += `<div class="modul-judul" style="color:#a78bfa;margin-top:16px"><i class="fa-solid fa-anchor"></i> Pelabuhan (${n.pelabuhan?.total ?? 0} pelabuhan)</div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">Rerata Kepadatan</span><span>${n.pelabuhan?.rerata_kepadatan ?? 'N/A'}% ${winTag(n.pelabuhan?.rerata_kepadatan, lain?.pelabuhan?.rerata_kepadatan, false)}</span></div>`;
-            html += `<div class="metrik-baris"><span style="color:#9ca3af">Pelabuhan Kritis</span><span style="color:#ef4444">${n.pelabuhan?.pelabuhan_kritis ?? 0} ${winTag(n.pelabuhan?.pelabuhan_kritis, lain?.pelabuhan?.pelabuhan_kritis, false)}</span></div>`;
-            // Daftar berita clickable
-            if (n.berita?.daftar?.length) {
-                html += `<div class="modul-judul" style="margin-top:16px"><i class="fa-solid fa-satellite-dish"></i> Berita Terkini</div>`;
-                n.berita.daftar.slice(0,3).forEach(b => {
-                    const url = b.url_asli ? `href="${b.url_asli}" target="_blank"` : '';
-                    html += `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><a ${url} style="font-size:12px;font-weight:600;color:#f9fafb;text-decoration:none;display:block;line-height:1.4">${b.judul} ${b.url_asli ? '<i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px;opacity:0.6"></i>' : ''}</a><span style="font-size:10px;color:#9ca3af">${b.sentimen} • ${b.keparahan}</span></div>`;
-                });
-            }
+            html += `<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-lg p-4">`;
+            html += blockTitle('directions_boat', `Infrastruktur Maritim (${n.pelabuhan?.total ?? 0})`, 'text-purple-400');
+            html += dataRow('Rerata Kepadatan', `${n.pelabuhan?.rerata_kepadatan ?? 'N/A'}%`, winTag(n.pelabuhan?.rerata_kepadatan, lain?.pelabuhan?.rerata_kepadatan, false));
+            html += dataRow('Pelabuhan Padat', `<span class="text-error">${n.pelabuhan?.pelabuhan_kritis ?? 0}</span>`, winTag(n.pelabuhan?.pelabuhan_kritis, lain?.pelabuhan?.pelabuhan_kritis, false));
+            html += `</div>`;
+
             return html;
         },
 
-        getWarnaRisiko(level) {
-            return {Kritis:'color:#ef4444',Tinggi:'color:#f97316',Sedang:'color:#eab308'}[level] ?? 'color:#22c55e';
+        getTextWarnaRisikoClass(level) {
+            return {Kritis:'text-error',Tinggi:'text-orange-500',Sedang:'text-amber-500'}[level] ?? 'text-emerald-500';
         },
-        getBgRisiko(level) {
-            const map = {Kritis:'background:rgba(220,38,38,0.2);color:#ef4444;border:1px solid #dc2626', Tinggi:'background:rgba(249,115,22,0.2);color:#f97316;border:1px solid #f97316', Sedang:'background:rgba(234,179,8,0.2);color:#eab308;border:1px solid #eab308'};
-            return map[level] ?? 'background:rgba(34,197,94,0.2);color:#22c55e;border:1px solid #22c55e';
+        getBadgeRisikoClass(level) {
+            const map = {
+                Kritis:'bg-error-container text-on-error-container border border-error/20', 
+                Tinggi:'bg-orange-500/20 text-orange-400 border border-orange-500/30', 
+                Sedang:'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+            };
+            return map[level] ?? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
         }
     }));
 });
