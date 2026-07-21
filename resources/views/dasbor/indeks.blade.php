@@ -6,196 +6,293 @@
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
-    /* Reset & Alpine Cloak */
     [x-cloak] { display: none !important; }
 
-    /* Layout SPA (Full Height) */
+    /* ===== SPA LAYOUT ===== */
     .spa-container {
         display: flex;
-        gap: 24px;
-        height: calc(100vh - 120px);
-        min-height: 700px;
+        gap: 20px;
+        height: calc(100vh - 116px);
+        min-height: 640px;
     }
-
     .panel-kiri {
-        flex: 0 0 65%;
+        flex: 0 0 64%;
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 0;
     }
-
     .panel-kanan {
         flex: 1;
-        background: var(--warna-kaca);
-        backdrop-filter: var(--blur-kaca);
-        border: 1px solid var(--warna-charcoal-border);
-        border-radius: 12px;
-        padding: 24px;
+        background: rgba(10, 15, 26, 0.85);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 14px;
+        padding: 20px;
         overflow-y: auto;
         position: relative;
+        box-shadow: 0 0 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
     }
+    .panel-kanan::-webkit-scrollbar { width: 4px; }
+    .panel-kanan::-webkit-scrollbar-track { background: transparent; }
+    .panel-kanan::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
 
-    /* Map HUD & Leaflet */
+    /* ===== MAP CONTAINER ===== */
     .map-container {
         flex: 1;
-        border-radius: 12px;
-        border: 1px solid var(--warna-charcoal-border);
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
         position: relative;
         overflow: hidden;
+        box-shadow: 0 0 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(64,150,255,0.05);
     }
-
+    .map-container::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 14px;
+        border: 1px solid rgba(64,150,255,0.08);
+        pointer-events: none;
+        z-index: 1001;
+    }
     #peta-sig {
         height: 100%;
         width: 100%;
-        background-color: #0f172a;
+        background-color: #060b12;
     }
 
+    /* ===== HUD OVERLAY ===== */
     .hud-overlay {
         position: absolute;
-        top: 20px;
-        left: 20px;
+        top: 14px;
+        left: 14px;
         z-index: 1000;
         display: flex;
-        gap: 12px;
+        gap: 10px;
+        align-items: center;
         pointer-events: none;
     }
-
-    .hud-box {
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 12px 16px;
-        border-radius: 8px;
-        pointer-events: auto;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-
     .negara-select {
-        background: rgba(15, 23, 42, 0.9);
-        color: white;
-        border: 1px solid #374151;
-        padding: 10px 16px;
-        border-radius: 8px;
+        background: rgba(8, 12, 20, 0.9);
+        backdrop-filter: blur(12px);
+        color: #e0e8f0;
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 9px 14px;
+        border-radius: 9px;
         font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        min-width: 250px;
+        font-size: 13px;
+        min-width: 240px;
         cursor: pointer;
         pointer-events: auto;
+        transition: border-color 0.2s ease;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
-    .negara-select:focus { outline: none; border-color: #ef4444; }
+    .negara-select:focus { outline: none; border-color: rgba(255,77,79,0.5); }
+    .negara-select option { background: #0d1420; }
 
-    /* Custom Scrollbar for Panel Kanan */
-    .panel-kanan::-webkit-scrollbar { width: 6px; }
-    .panel-kanan::-webkit-scrollbar-track { background: transparent; }
-    .panel-kanan::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+    .hud-stat {
+        background: rgba(8, 12, 20, 0.88);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 8px 14px;
+        border-radius: 9px;
+        pointer-events: auto;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    }
 
-    /* Insight Card Styles */
+    /* ===== LOADING OVERLAY ===== */
+    .loader {
+        position: absolute;
+        inset: 0;
+        background: rgba(8, 12, 20, 0.75);
+        backdrop-filter: blur(6px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 14px;
+        z-index: 50;
+        border-radius: 14px;
+    }
+    .loader-ring {
+        width: 42px; height: 42px;
+        border: 3px solid rgba(224,49,49,0.15);
+        border-top-color: #ff4d4f;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== SIMULATOR PANEL ===== */
+    .sim-panel {
+        background: rgba(224,49,49,0.04);
+        border: 1px solid rgba(224,49,49,0.15);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 18px;
+        transition: border-color 0.2s ease;
+    }
+    .sim-panel:hover { border-color: rgba(224,49,49,0.25); }
+    .sim-header {
+        font-family: 'Outfit', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        color: #e0e8f0;
+        letter-spacing: 0.2px;
+    }
+    .sim-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 10px;
+        font-size: 11px;
+    }
+    .sim-label { color: var(--c-text-3); }
+    .sim-label strong { color: var(--c-text-2); font-family: 'JetBrains Mono', monospace; }
+    input[type=range] {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(255,255,255,0.08);
+        width: 100%;
+        cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 13px; height: 13px;
+        border-radius: 50%;
+        background: #ff4d4f;
+        border: 2px solid #fff;
+        box-shadow: 0 0 8px rgba(255,77,79,0.5);
+        cursor: pointer;
+    }
+
+    /* ===== INSIGHT CARDS ===== */
     .insight-card {
         background: rgba(255,255,255,0.02);
-        border: 1px solid rgba(255,255,255,0.05);
-        border-radius: 8px;
-        padding: 16px;
-        margin-bottom: 16px;
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+        transition: border-color 0.2s ease;
     }
-    
+    .insight-card:hover { border-color: rgba(255,255,255,0.1); }
     .insight-header {
         display: flex;
         align-items: center;
         gap: 8px;
         font-family: 'Outfit', sans-serif;
         font-weight: 600;
-        font-size: 15px;
+        font-size: 13px;
         margin-bottom: 12px;
         padding-bottom: 8px;
         border-bottom: 1px solid rgba(255,255,255,0.05);
+        letter-spacing: -0.1px;
     }
 
+    /* ===== BADGE DYNAMIC (Risk Level) ===== */
     .badge-dynamic {
-        padding: 4px 8px;
+        display: inline-block;
+        padding: 3px 9px;
         border-radius: 4px;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
         text-transform: uppercase;
+        letter-spacing: 0.6px;
     }
 
-    .loader {
-        position: absolute;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.7);
-        backdrop-filter: blur(4px);
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
         display: flex;
-        justify-content: center;
         align-items: center;
-        z-index: 50;
+        gap: 10px;
+        margin: 18px 0 14px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--c-text-3);
+    }
+    .section-divider::before, .section-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,0.05);
     }
 
-    /* CSS Animasi Marker & Rute Kelas Dunia */
-    .user-pulse-container {
-        position: relative;
+    /* ===== DARK TOOLTIP (Leaflet) ===== */
+    .dark-tooltip {
+        background: rgba(8,12,20,0.95) !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        color: #e0e8f0 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 12px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+        padding: 8px 12px !important;
     }
+    .dark-tooltip::before { display: none !important; }
+
+    /* ===== GEOLOCATION & ROUTE ANIMATIONS ===== */
+    .user-pulse-container { position: relative; }
     .user-pulse-marker {
-        width: 14px;
-        height: 14px;
-        background: #3b82f6;
-        border: 2px solid #ffffff;
+        width: 13px; height: 13px;
+        background: #4096ff;
+        border: 2px solid rgba(255,255,255,0.9);
         border-radius: 50%;
-        box-shadow: 0 0 12px #3b82f6;
+        box-shadow: 0 0 14px rgba(64,150,255,0.7);
     }
     .user-pulse-container::after {
         content: '';
-        width: 30px;
-        height: 30px;
-        border: 2.5px solid #3b82f6;
+        width: 28px; height: 28px;
+        border: 2px solid rgba(64,150,255,0.6);
         border-radius: 50%;
         position: absolute;
-        top: -8px;
-        left: -8px;
-        animation: user-pulse-anim 1.8s infinite ease-out;
+        top: -7.5px; left: -7.5px;
+        animation: user-pulse-anim 2s infinite ease-out;
         opacity: 0;
         pointer-events: none;
     }
     @keyframes user-pulse-anim {
-        0% { transform: scale(0.3); opacity: 0.8; }
-        100% { transform: scale(1.2); opacity: 0; }
+        0% { transform: scale(0.3); opacity: 0.7; }
+        100% { transform: scale(1.3); opacity: 0; }
     }
 
     .animated-route-line {
         stroke-dasharray: 8;
         animation: dash-animation 25s linear infinite;
     }
-    @keyframes dash-animation {
-        to {
-            stroke-dashoffset: -1000;
-        }
-    }
+    @keyframes dash-animation { to { stroke-dashoffset: -1000; } }
 
-    .risk-pulse-container {
-        position: relative;
-    }
-    .risk-pulse-kritis { animation: pulse-kritis 1.5s infinite; }
-    .risk-pulse-tinggi { animation: pulse-tinggi 1.5s infinite; }
-    .risk-pulse-sedang { animation: pulse-sedang 1.5s infinite; }
-    .risk-pulse-rendah { animation: pulse-rendah 1.5s infinite; }
+    .risk-pulse-container { position: relative; }
+    .risk-pulse-kritis { animation: pulse-kritis 1.4s infinite; }
+    .risk-pulse-tinggi  { animation: pulse-tinggi  1.6s infinite; }
+    .risk-pulse-sedang  { animation: pulse-sedang  1.8s infinite; }
+    .risk-pulse-rendah  { animation: pulse-rendah  2.2s infinite; }
 
     @keyframes pulse-kritis {
-        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8); }
-        70% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        0%  { box-shadow: 0 0 0 0 rgba(255,77,79,0.8); }
+        70% { box-shadow: 0 0 0 8px rgba(255,77,79,0); }
+        100%{ box-shadow: 0 0 0 0 rgba(255,77,79,0); }
     }
     @keyframes pulse-tinggi {
-        0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.8); }
-        70% { box-shadow: 0 0 0 7px rgba(249, 115, 22, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+        0%  { box-shadow: 0 0 0 0 rgba(255,122,69,0.8); }
+        70% { box-shadow: 0 0 0 8px rgba(255,122,69,0); }
+        100%{ box-shadow: 0 0 0 0 rgba(255,122,69,0); }
     }
     @keyframes pulse-sedang {
-        0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.8); }
-        70% { box-shadow: 0 0 0 7px rgba(234, 179, 8, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        0%  { box-shadow: 0 0 0 0 rgba(255,197,61,0.8); }
+        70% { box-shadow: 0 0 0 8px rgba(255,197,61,0); }
+        100%{ box-shadow: 0 0 0 0 rgba(255,197,61,0); }
     }
     @keyframes pulse-rendah {
-        0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.8); }
-        70% { box-shadow: 0 0 0 7px rgba(34, 197, 94, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        0%  { box-shadow: 0 0 0 0 rgba(82,196,26,0.7); }
+        70% { box-shadow: 0 0 0 8px rgba(82,196,26,0); }
+        100%{ box-shadow: 0 0 0 0 rgba(82,196,26,0); }
     }
 </style>
 @endsection
@@ -223,9 +320,9 @@
                     @endforeach
                 </select>
                 
-                <div class="hud-box">
-                    <div style="font-size: 10px; color: #9ca3af; text-transform: uppercase;">Total Node SCM</div>
-                    <div style="font-size: 20px; font-weight: 700; font-family: 'Outfit';">{{ $negaraList->count() }}</div>
+                <div class="hud-stat">
+                    <div style="font-size: 9px; color: var(--c-text-3); text-transform: uppercase; letter-spacing: 1px;">Total Node SCM</div>
+                    <div style="font-size: 19px; font-weight: 700; font-family: 'Outfit'; color: var(--c-text-1);">{{ $negaraList->count() }}</div>
                 </div>
             </div>
             
@@ -239,48 +336,52 @@
         
         <!-- Loading Overlay -->
         <div x-show="isLoading" class="loader" x-transition>
-            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: #ef4444;"></i>
+            <div class="loader-ring"></div>
+            <div style="font-size: 11px; color: var(--c-text-3); letter-spacing: 0.5px;">Memuat data intelijen…</div>
         </div>
 
         <!-- Simulator Bobot Risiko Collapsible Panel -->
-        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 12px; margin-bottom: 20px;">
-            <div style="font-family: 'Outfit'; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: var(--warna-teks-putih);" @click="showSimulator = !showSimulator">
-                <span><i class="fa-solid fa-sliders" style="color: #ef4444; margin-right: 6px;"></i> Simulator Bobot Risiko (Real-time)</span>
-                <i class="fa-solid" :class="showSimulator ? 'fa-chevron-up' : 'fa-chevron-down'" style="font-size: 10px;"></i>
+        <div class="sim-panel">
+            <div class="sim-header" @click="showSimulator = !showSimulator">
+                <span><i class="fa-solid fa-sliders" style="color: #ff4d4f; margin-right: 7px;"></i>Simulator Bobot Risiko</span>
+                <i class="fa-solid" :class="showSimulator ? 'fa-chevron-up' : 'fa-chevron-down'" style="font-size: 9px; color: var(--c-text-3);"></i>
             </div>
-            <div x-show="showSimulator" style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px;" x-transition>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
-                    <span style="color:#9ca3af;">Cuaca: <strong style="color:#fff;" x-text="simBobotCuaca + '%'"></strong></span>
-                    <input type="range" min="0" max="100" x-model="simBobotCuaca" @input="recalculateRisks()" style="width: 60%; accent-color: #ef4444; height: 4px; border-radius: 2px;">
+            <div x-show="showSimulator" style="display: flex; flex-direction: column; gap: 9px; margin-top: 12px;" x-transition>
+                <div class="sim-row">
+                    <div class="sim-label">Cuaca <strong x-text="simBobotCuaca + '%'"></strong></div>
+                    <input type="range" min="0" max="100" x-model="simBobotCuaca" @input="recalculateRisks()" style="width: 110px;">
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
-                    <span style="color:#9ca3af;">Ekonomi / Inflasi: <strong style="color:#fff;" x-text="simBobotEkonomi + '%'"></strong></span>
-                    <input type="range" min="0" max="100" x-model="simBobotEkonomi" @input="recalculateRisks()" style="width: 60%; accent-color: #ef4444; height: 4px; border-radius: 2px;">
+                <div class="sim-row">
+                    <div class="sim-label">Ekonomi / Inflasi <strong x-text="simBobotEkonomi + '%'"></strong></div>
+                    <input type="range" min="0" max="100" x-model="simBobotEkonomi" @input="recalculateRisks()" style="width: 110px;">
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
-                    <span style="color:#9ca3af;">Nilai Tukar Valas: <strong style="color:#fff;" x-text="simBobotKurs + '%'"></strong></span>
-                    <input type="range" min="0" max="100" x-model="simBobotKurs" @input="recalculateRisks()" style="width: 60%; accent-color: #ef4444; height: 4px; border-radius: 2px;">
+                <div class="sim-row">
+                    <div class="sim-label">Nilai Tukar Valas <strong x-text="simBobotKurs + '%'"></strong></div>
+                    <input type="range" min="0" max="100" x-model="simBobotKurs" @input="recalculateRisks()" style="width: 110px;">
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
-                    <span style="color:#9ca3af;">Sentimen Berita SCM: <strong style="color:#fff;" x-text="simBobotBerita + '%'"></strong></span>
-                    <input type="range" min="0" max="100" x-model="simBobotBerita" @input="recalculateRisks()" style="width: 60%; accent-color: #ef4444; height: 4px; border-radius: 2px;">
+                <div class="sim-row">
+                    <div class="sim-label">Sentimen Berita <strong x-text="simBobotBerita + '%'"></strong></div>
+                    <input type="range" min="0" max="100" x-model="simBobotBerita" @input="recalculateRisks()" style="width: 110px;">
                 </div>
-                <div style="font-size: 9.5px; color: #9ca3af; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
-                    Total Bobot: <span style="color:#fff; font-weight:700;" x-text="Number(simBobotCuaca)+Number(simBobotEkonomi)+Number(simBobotKurs)+Number(simBobotBerita) + '%'"></span> (Sisa dialokasikan untuk logistik & politik)
+                <div style="font-size: 9px; color: var(--c-text-3); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px; margin-top: 2px;">
+                    Total: <span style="color: var(--c-text-2); font-weight: 700; font-family: 'JetBrains Mono', monospace;" x-text="Number(simBobotCuaca)+Number(simBobotEkonomi)+Number(simBobotKurs)+Number(simBobotBerita) + '%'"></span> &mdash; Sisa untuk logistik &amp; politik
                 </div>
             </div>
         </div>
 
         <!-- STATE 1: Default Global Overview (Jika belum ada negara terpilih) -->
         <div x-show="!selectedIso && !isLoading" x-transition.opacity>
-            <h2 style="font-family: 'Outfit'; font-size: 22px; margin-bottom: 24px; border-bottom: 1px solid #374151; padding-bottom: 12px;">
-                <i class="fa-solid fa-earth-americas" style="color: #3b82f6;"></i> Ringkasan SCM Global
-            </h2>
+            <div style="margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <div style="font-family: 'Outfit'; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-earth-americas" style="color: var(--c-blue);"></i> Ringkasan SCM Global
+                </div>
+                <div style="font-size: 11px; color: var(--c-text-3); margin-top: 3px;">Klik marker negara di peta untuk memulai analisis</div>
+            </div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-                <div style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3); padding: 16px; border-radius: 8px;">
-                    <div style="font-size: 12px; color: #f87171;">Risiko Kritis</div>
-                    <div style="font-size: 32px; font-weight: 700; color: #ef4444; font-family: 'Outfit';">{{ $statistik['kritis'] }}</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                <div style="background: rgba(255,77,79,0.08); border: 1px solid rgba(255,77,79,0.2); padding: 16px 14px; border-radius: 10px; position: relative; overflow: hidden;">
+                    <div style="font-size: 10px; color: var(--c-kritis); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;">Risiko Kritis</div>
+                    <div style="font-size: 30px; font-weight: 800; color: var(--c-kritis); font-family: 'Outfit';">{{ $statistik['kritis'] }}</div>
                 </div>
                 <div style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3); padding: 16px; border-radius: 8px;">
                     <div style="font-size: 12px; color: #fde047;">Risiko Sedang/Tinggi</div>
